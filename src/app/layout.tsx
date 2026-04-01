@@ -19,6 +19,10 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "Palpite Perfeito - Bolão da Copa",
   description: "Dê seus palpites e dispute com seus amigos!",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
