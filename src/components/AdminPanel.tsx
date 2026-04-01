@@ -33,6 +33,7 @@ import {
 import {
   CheckCircle2,
   Plus,
+  RotateCcw,
   Trash2,
   Users,
   Calendar,
@@ -52,6 +53,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  resetTournamentData,
 } from "@/app/actions/admin";
 import {
   setTopScorerResult,
@@ -117,6 +119,8 @@ export default function AdminPanel({
   tournamentResults: TournamentResultData;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetConfirmation, setResetConfirmation] = useState("");
 
   const totalMatches = matches.length;
   const finishedCount = matches.filter((m) => m.status === "FINISHED").length;
@@ -173,6 +177,21 @@ export default function AdminPanel({
         </Card>
       </div>
 
+      <Card className="border-destructive/30 bg-destructive/5">
+        <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-1">
+            <p className="font-semibold text-destructive">Resetar base da competição</p>
+            <p className="text-sm text-muted-foreground">
+              Remove jogos, gols, palpites, apostas especiais, resultados e zera os pontos de todos os usuários.
+            </p>
+          </div>
+          <Button variant="destructive" onClick={() => setResetDialogOpen(true)} disabled={isPending}>
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Resetar dados
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Tabs */}
       <Tabs defaultValue="results" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
@@ -210,6 +229,69 @@ export default function AdminPanel({
           <UsersTab users={users} isPending={isPending} startTransition={startTransition} />
         </TabsContent>
       </Tabs>
+
+      <Dialog
+        open={resetDialogOpen}
+        onOpenChange={(open) => {
+          setResetDialogOpen(open);
+          if (!open) {
+            setResetConfirmation("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-display text-destructive">
+              Resetar dados da competição
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Essa ação apaga jogos, gols, palpites, apostas especiais, resultados e login attempts,
+              além de zerar os pontos de todos os usuários. Não remove as contas.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="reset-confirmation" className="block">
+                Digite RESETAR para confirmar
+              </Label>
+              <Input
+                id="reset-confirmation"
+                value={resetConfirmation}
+                onChange={(e) => setResetConfirmation(e.target.value)}
+                placeholder="RESETAR"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setResetDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isPending || resetConfirmation.trim().toUpperCase() !== "RESETAR"}
+              onClick={() => {
+                startTransition(async () => {
+                  const result = await resetTournamentData();
+                  if (result?.error) {
+                    toast.error(result.error);
+                    return;
+                  }
+                  toast.success("Base da competição resetada.");
+                  setResetConfirmation("");
+                  setResetDialogOpen(false);
+                });
+              }}
+            >
+              {isPending ? "Resetando..." : "Confirmar reset"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

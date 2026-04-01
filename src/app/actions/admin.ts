@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { calculatePoints } from "@/lib/scoring";
 import { recalculateUsersTotalPoints } from "@/lib/points-recalculation";
+import { resetCompetitionData } from "@/lib/reset-competition-data";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
 
@@ -299,5 +300,20 @@ export async function deleteUser(userId: string) {
 
   revalidatePath("/admin");
   revalidatePath("/ranking");
+  return { success: true };
+}
+
+export async function resetTournamentData() {
+  await requireAdmin();
+
+  await prisma.$transaction(async (tx) => {
+    await resetCompetitionData(tx);
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/ranking");
+  revalidatePath("/my-bets");
+  revalidatePath("/special-bets");
   return { success: true };
 }

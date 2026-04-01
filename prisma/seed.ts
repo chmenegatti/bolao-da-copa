@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaBetterSQLite3 } from "@prisma/adapter-better-sqlite3";
 import { hash } from "bcryptjs";
+import { resetCompetitionData } from "../src/lib/reset-competition-data";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -15,11 +16,19 @@ const adapter = new PrismaBetterSQLite3({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  await prisma.$transaction(async (tx) => {
+    await resetCompetitionData(tx);
+  });
+
   // Create admin user
-  const adminPassword = await hash("admin123", 12);
+  const adminPassword = await hash("Admin@2026#", 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@bolao.com" },
-    update: {},
+    update: {
+      name: "Administrador",
+      password: adminPassword,
+      role: "ADMIN",
+    },
     create: {
       name: "Administrador",
       email: "admin@bolao.com",
@@ -33,7 +42,11 @@ async function main() {
   const userPassword = await hash("user123", 12);
   const user = await prisma.user.upsert({
     where: { email: "jogador@bolao.com" },
-    update: {},
+    update: {
+      name: "Jogador Teste",
+      password: userPassword,
+      role: "USER",
+    },
     create: {
       name: "Jogador Teste",
       email: "jogador@bolao.com",
