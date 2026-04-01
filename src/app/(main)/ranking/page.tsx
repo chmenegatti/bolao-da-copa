@@ -64,7 +64,7 @@ export default async function RankingPage() {
           {top3[0] && (
             <div className="flex flex-col items-center justify-end">
               <Card
-                className={`w-full p-5 text-center ${podiumStyles[0]} animate-slide-up animate-pulse-gold`}
+                className={`w-full p-5 text-center ${podiumStyles[0]} animate-pulse-gold`}
               >
                 <span className="text-3xl">{podiumLabels[0]}</span>
                 <p className="font-display font-bold mt-1 truncate">

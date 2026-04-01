@@ -5,11 +5,20 @@ import { getRequiredUser } from "@/lib/auth-helpers";
 import { canUserPlaceGuess } from "@/lib/game-logic";
 import { revalidatePath } from "next/cache";
 
+const MAX_SCORE = 30;
+
 export async function saveGuess(matchId: string, guessA: number, guessB: number) {
   const user = await getRequiredUser();
 
-  if (guessA < 0 || guessB < 0 || !Number.isInteger(guessA) || !Number.isInteger(guessB)) {
-    return { error: "Placares devem ser números inteiros ≥ 0." };
+  if (
+    guessA < 0 ||
+    guessB < 0 ||
+    guessA > MAX_SCORE ||
+    guessB > MAX_SCORE ||
+    !Number.isInteger(guessA) ||
+    !Number.isInteger(guessB)
+  ) {
+    return { error: `Placares devem ser números inteiros entre 0 e ${MAX_SCORE}.` };
   }
 
   const match = await prisma.match.findUnique({ where: { id: matchId } });

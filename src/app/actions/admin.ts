@@ -1,10 +1,22 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { calculatePoints } from "@/lib/scoring";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ALLOWED_ROLES = ["USER", "ADMIN"] as const;
+const MAX_SCORE = 30;
+const MAX_GOAL_MINUTE = 130;
+const MAX_TEAM_NAME_LENGTH = 60;
+const MAX_PLAYER_NAME_LENGTH = 80;
+
+function isAllowedRole(role: string): role is (typeof ALLOWED_ROLES)[number] {
+  return ALLOWED_ROLES.includes(role as (typeof ALLOWED_ROLES)[number]);
+}
 
 export async function finishMatch(
   matchId: string,
@@ -14,8 +26,32 @@ export async function finishMatch(
 ) {
   await requireAdmin();
 
-  if (scoreA < 0 || scoreB < 0 || !Number.isInteger(scoreA) || !Number.isInteger(scoreB)) {
-    return { error: "Placares devem ser números inteiros ≥ 0." };
+  if (
+    scoreA < 0 ||
+    scoreB < 0 ||
+    scoreA > MAX_SCORE ||
+    scoreB > MAX_SCORE ||
+    !Number.isInteger(scoreA) ||
+    !Number.isInteger(scoreB)
+  ) {
+    return { error: `Placares devem ser números inteiros entre 0 e ${MAX_SCORE}.` };
+  }
+
+  for (const goal of goals) {
+    const normalizedPlayer = goal.player?.trim() ?? "";
+    if ((goal.team !== "A" && goal.team !== "B") || !normalizedPlayer) {
+      return { error: "Cada gol deve ter time válido (A/B) e nome do jogador." };
+    }
+    if (normalizedPlayer.length > MAX_PLAYER_NAME_LENGTH) {
+      return { error: `Nome do jogador deve ter no máximo ${MAX_PLAYER_NAME_LENGTH} caracteres.` };
+    }
+    if (
+      !Number.isInteger(goal.minute) ||
+      goal.minute < 1 ||
+      goal.minute > MAX_GOAL_MINUTE
+    ) {
+      return { error: `Minuto do gol deve ser um inteiro entre 1 e ${MAX_GOAL_MINUTE}.` };
+    }
   }
 
   const match = await prisma.match.findUnique({ where: { id: matchId } });
@@ -36,7 +72,12 @@ export async function finishMatch(
     // Save goals
     if (goals.length > 0) {
       await tx.goal.createMany({
-        data: goals.map((g) => ({ matchId, team: g.team, player: g.player, minute: g.minute })),
+        data: goals.map((g) => ({
+          matchId,
+          team: g.team,
+          player: g.player.trim(),
+          minute: g.minute,
+        })),
       });
     }
 
@@ -79,20 +120,29 @@ export async function finishMatch(
 export async function createMatch(formData: FormData) {
   await requireAdmin();
 
-  const teamA = formData.get("teamA") as string;
-  const teamB = formData.get("teamB") as string;
-  const datetime = formData.get("datetime") as string;
-  const groupStage = formData.get("groupStage") as string;
+  const teamA = (formData.get("teamA") as string | null)?.trim() ?? "";
+  const teamB = (formData.get("teamB") as string | null)?.trim() ?? "";
+  const datetime = (formData.get("datetime") as string | null)?.trim() ?? "";
+  const groupStage = (formData.get("groupStage") as string | null)?.trim() ?? "";
 
   if (!teamA || !teamB || !datetime || !groupStage) {
     return { error: "Preencha todos os campos." };
+  }
+
+  if (teamA.length > MAX_TEAM_NAME_LENGTH || teamB.length > MAX_TEAM_NAME_LENGTH) {
+    return { error: `Nome dos times deve ter no máximo ${MAX_TEAM_NAME_LENGTH} caracteres.` };
+  }
+
+  const parsedDatetime = new Date(datetime);
+  if (Number.isNaN(parsedDatetime.getTime())) {
+    return { error: "Data/hora inválida." };
   }
 
   await prisma.match.create({
     data: {
       teamA,
       teamB,
-      datetime: new Date(datetime),
+      datetime: parsedDatetime,
       groupStage,
     },
   });
@@ -105,13 +155,22 @@ export async function createMatch(formData: FormData) {
 export async function updateMatch(matchId: string, formData: FormData) {
   await requireAdmin();
 
-  const teamA = formData.get("teamA") as string;
-  const teamB = formData.get("teamB") as string;
-  const datetime = formData.get("datetime") as string;
-  const groupStage = formData.get("groupStage") as string;
+  const teamA = (formData.get("teamA") as string | null)?.trim() ?? "";
+  const teamB = (formData.get("teamB") as string | null)?.trim() ?? "";
+  const datetime = (formData.get("datetime") as string | null)?.trim() ?? "";
+  const groupStage = (formData.get("groupStage") as string | null)?.trim() ?? "";
 
   if (!teamA || !teamB || !datetime || !groupStage) {
     return { error: "Preencha todos os campos." };
+  }
+
+  if (teamA.length > MAX_TEAM_NAME_LENGTH || teamB.length > MAX_TEAM_NAME_LENGTH) {
+    return { error: `Nome dos times deve ter no máximo ${MAX_TEAM_NAME_LENGTH} caracteres.` };
+  }
+
+  const parsedDatetime = new Date(datetime);
+  if (Number.isNaN(parsedDatetime.getTime())) {
+    return { error: "Data/hora inválida." };
   }
 
   const match = await prisma.match.findUnique({ where: { id: matchId } });
@@ -120,7 +179,7 @@ export async function updateMatch(matchId: string, formData: FormData) {
 
   await prisma.match.update({
     where: { id: matchId },
-    data: { teamA, teamB, datetime: new Date(datetime), groupStage },
+    data: { teamA, teamB, datetime: parsedDatetime, groupStage },
   });
 
   revalidatePath("/");
@@ -164,27 +223,43 @@ export async function getUsers() {
 export async function createUser(formData: FormData) {
   await requireAdmin();
 
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const role = (formData.get("role") as string) || "USER";
+  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
+  const password = (formData.get("password") as string | null) ?? "";
+  const role = ((formData.get("role") as string | null)?.trim() ?? "USER").toUpperCase();
 
   if (!name || !email || !password) {
     return { error: "Preencha todos os campos." };
+  }
+  if (!EMAIL_REGEX.test(email)) {
+    return { error: "Informe um email válido." };
+  }
+  if (!isAllowedRole(role)) {
+    return { error: "Papel inválido." };
   }
   if (password.length < 6) {
     return { error: "A senha deve ter pelo menos 6 caracteres." };
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return { error: "Email já cadastrado." };
-  }
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return { error: "Email já cadastrado." };
+    }
 
-  const hashed = await hash(password, 12);
-  await prisma.user.create({
-    data: { name, email, password: hashed, role },
-  });
+    const hashed = await hash(password, 12);
+    await prisma.user.create({
+      data: { name, email, password: hashed, role },
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return { error: "Email já cadastrado." };
+    }
+    throw error;
+  }
 
   revalidatePath("/admin");
   return { success: true };
@@ -193,13 +268,19 @@ export async function createUser(formData: FormData) {
 export async function updateUser(userId: string, formData: FormData) {
   await requireAdmin();
 
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const role = formData.get("role") as string;
-  const password = formData.get("password") as string;
+  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
+  const role = ((formData.get("role") as string | null)?.trim() ?? "").toUpperCase();
+  const password = (formData.get("password") as string | null) ?? "";
 
   if (!name || !email || !role) {
     return { error: "Preencha nome, email e papel." };
+  }
+  if (!EMAIL_REGEX.test(email)) {
+    return { error: "Informe um email válido." };
+  }
+  if (!isAllowedRole(role)) {
+    return { error: "Papel inválido." };
   }
 
   const existing = await prisma.user.findFirst({
