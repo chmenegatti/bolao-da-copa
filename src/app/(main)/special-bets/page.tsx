@@ -1,17 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { getRequiredUser } from "@/lib/auth-helpers";
+import { canUserPlaceGuess } from "@/lib/game-logic";
 import SpecialBetsPanel from "@/components/SpecialBetsPanel";
 
 export default async function SpecialBetsPage() {
   const user = await getRequiredUser();
 
-  const [topScorerBet, championBet, topScorerResult, championResult] =
+  const [topScorerBet, championBet, topScorerResult, championResult, firstMatch] =
     await Promise.all([
       prisma.topScorerBet.findUnique({ where: { userId: user.id } }),
       prisma.championBet.findUnique({ where: { userId: user.id } }),
       prisma.tournamentResult.findUnique({ where: { key: "topScorer" } }),
       prisma.tournamentResult.findUnique({ where: { key: "champion" } }),
+      prisma.match.findFirst({ orderBy: { datetime: "asc" }, select: { datetime: true } }),
     ]);
+
+  const bettingOpen = firstMatch ? canUserPlaceGuess(firstMatch.datetime) : false;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -42,6 +46,7 @@ export default async function SpecialBetsPage() {
             }
             : null
         }
+        bettingOpen={bettingOpen}
         topScorerClosed={!!topScorerResult?.topScorerName}
         championClosed={!!championResult?.champion}
         topScorerResult={

@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getRequiredUser } from "@/lib/auth-helpers";
-import { isBettingOpen } from "@/lib/timezone";
+import { canUserPlaceGuess } from "@/lib/game-logic";
 import { revalidatePath } from "next/cache";
 
 export async function saveGuess(matchId: string, guessA: number, guessB: number) {
@@ -21,8 +21,8 @@ export async function saveGuess(matchId: string, guessA: number, guessB: number)
     return { error: "Esta partida já foi finalizada." };
   }
 
-  if (!isBettingOpen(match.datetime)) {
-    return { error: "Apostas encerradas. Faltam menos de 10 minutos para o jogo." };
+  if (!canUserPlaceGuess(match.datetime)) {
+    return { error: "Prazo encerrado. Apostas fecham 10 minutos antes do início do jogo." };
   }
 
   await prisma.guess.upsert({

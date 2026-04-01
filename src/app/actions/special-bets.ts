@@ -2,7 +2,19 @@
 
 import { prisma } from "@/lib/prisma";
 import { getRequiredUser, requireAdmin } from "@/lib/auth-helpers";
+import { canUserPlaceGuess } from "@/lib/game-logic";
 import { revalidatePath } from "next/cache";
+
+async function assertSpecialBetsOpen() {
+  const firstMatch = await prisma.match.findFirst({
+    orderBy: { datetime: "asc" },
+    select: { datetime: true },
+  });
+  if (!firstMatch || !canUserPlaceGuess(firstMatch.datetime)) {
+    return "Prazo encerrado. As apostas especiais fecham 10 minutos antes do primeiro jogo.";
+  }
+  return null;
+}
 
 // ==================== Top Scorer Bet ====================
 
@@ -16,16 +28,16 @@ export async function saveTopScorerBet(playerName: string, totalGoals: number) {
     return { error: "Quantidade de gols deve ser um número inteiro ≥ 0." };
   }
 
-  // Check if tournament result is already set (betting closed)
-  const result = await prisma.tournamentResult.findUnique({ where: { key: "topScorer" } });
-  if (result?.topScorerName) {
-    return { error: "As apostas de artilheiro já foram encerradas." };
+  const windowError = await assertSpecialBetsOpen();
+  if (windowError) return { error: windowError };
+
+  const existing = await prisma.topScorerBet.findUnique({ where: { userId: user.id } });
+  if (existing) {
+    return { error: "Você já registrou sua aposta de artilheiro. Esta aposta é única e não pode ser alterada." };
   }
 
-  await prisma.topScorerBet.upsert({
-    where: { userId: user.id },
-    update: { playerName: playerName.trim(), totalGoals },
-    create: { userId: user.id, playerName: playerName.trim(), totalGoals },
+  await prisma.topScorerBet.create({
+    data: { userId: user.id, playerName: playerName.trim(), totalGoals },
   });
 
   revalidatePath("/special-bets");
@@ -53,21 +65,16 @@ export async function saveChampionBet(
     return { error: "Placar deve ser números inteiros ≥ 0." };
   }
 
-  // Check if tournament result is already set (betting closed)
-  const result = await prisma.tournamentResult.findUnique({ where: { key: "champion" } });
-  if (result?.champion) {
-    return { error: "As apostas de campeão já foram encerradas." };
+  const windowError = await assertSpecialBetsOpen();
+  if (windowError) return { error: windowError };
+
+  const existing = await prisma.championBet.findUnique({ where: { userId: user.id } });
+  if (existing) {
+    return { error: "Você já registrou sua aposta de campeão. Esta aposta é única e não pode ser alterada." };
   }
 
-  await prisma.championBet.upsert({
-    where: { userId: user.id },
-    update: {
-      champion: champion.trim(),
-      runnerUp: runnerUp.trim(),
-      finalScoreA,
-      finalScoreB,
-    },
-    create: {
+  await prisma.championBet.create({
+    data: {
       userId: user.id,
       champion: champion.trim(),
       runnerUp: runnerUp.trim(),
