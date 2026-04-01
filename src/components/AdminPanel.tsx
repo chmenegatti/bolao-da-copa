@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -501,7 +501,7 @@ function GoalDialog({
           <div className="space-y-4 py-2">
             <div>
               <Label>Time</Label>
-              <Select value={team} onValueChange={setTeam}>
+              <Select value={team} onValueChange={(value) => setTeam(value ?? "A")}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -611,7 +611,7 @@ function MatchesTab({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Select value={stageFilter} onValueChange={setStageFilter}>
+          <Select value={stageFilter} onValueChange={(value) => setStageFilter(value ?? "all")}>
             <SelectTrigger className="w-50">
               <SelectValue placeholder="Filtrar por fase" />
             </SelectTrigger>

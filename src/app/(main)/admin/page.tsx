@@ -24,9 +24,10 @@ export default async function AdminPage() {
   const championRow = tournamentResultRows.find((r) => r.key === "champion");
 
   const tournamentResults = {
-    topScorer: topScorerRow
-      ? { playerName: topScorerRow.playerName!, totalGoals: topScorerRow.totalGoals! }
-      : null,
+    topScorer:
+      topScorerRow?.topScorerName != null && topScorerRow.topScorerGoals != null
+        ? { playerName: topScorerRow.topScorerName, totalGoals: topScorerRow.topScorerGoals }
+        : null,
     champion: championRow
       ? {
         champion: championRow.champion!,
