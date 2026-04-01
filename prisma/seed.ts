@@ -1,7 +1,18 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSQLite3 } from "@prisma/adapter-better-sqlite3";
 import { hash } from "bcryptjs";
 
-const prisma = new PrismaClient();
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL environment variable is required");
+}
+
+const adapter = new PrismaBetterSQLite3({
+  url: databaseUrl,
+});
+
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // Create admin user
