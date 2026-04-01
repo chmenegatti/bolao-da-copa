@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getRequiredUser, requireAdmin } from "@/lib/auth-helpers";
 import { canUserPlaceGuess } from "@/lib/game-logic";
+import { recalculateUsersTotalPoints } from "@/lib/points-recalculation";
 import { revalidatePath } from "next/cache";
 
 const MAX_SCORE = 30;
@@ -170,21 +171,7 @@ export async function setTopScorerResult(playerName: string, totalGoals: number)
       });
     }
 
-    // Recalculate totalPoints for all users who have bets
-    const userIds = bets.map((b) => b.userId);
-    for (const userId of userIds) {
-      const matchPoints = await tx.guess.aggregate({
-        where: { userId, pointsEarned: { not: null } },
-        _sum: { pointsEarned: true },
-      });
-      const tsPoints = await tx.topScorerBet.findUnique({ where: { userId } });
-      const chPoints = await tx.championBet.findUnique({ where: { userId } });
-      const total =
-        (matchPoints._sum.pointsEarned ?? 0) +
-        (tsPoints?.pointsEarned ?? 0) +
-        (chPoints?.pointsEarned ?? 0);
-      await tx.user.update({ where: { id: userId }, data: { totalPoints: total } });
-    }
+    await recalculateUsersTotalPoints(tx, bets.map((b) => b.userId));
   });
 
   revalidatePath("/");
@@ -265,21 +252,7 @@ export async function setChampionResult(
       });
     }
 
-    // Recalculate totalPoints for all users who have bets
-    const userIds = bets.map((b) => b.userId);
-    for (const userId of userIds) {
-      const matchPoints = await tx.guess.aggregate({
-        where: { userId, pointsEarned: { not: null } },
-        _sum: { pointsEarned: true },
-      });
-      const tsPoints = await tx.topScorerBet.findUnique({ where: { userId } });
-      const chPoints = await tx.championBet.findUnique({ where: { userId } });
-      const total =
-        (matchPoints._sum.pointsEarned ?? 0) +
-        (tsPoints?.pointsEarned ?? 0) +
-        (chPoints?.pointsEarned ?? 0);
-      await tx.user.update({ where: { id: userId }, data: { totalPoints: total } });
-    }
+    await recalculateUsersTotalPoints(tx, bets.map((b) => b.userId));
   });
 
   revalidatePath("/");

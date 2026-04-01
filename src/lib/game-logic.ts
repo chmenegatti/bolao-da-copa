@@ -1,7 +1,4 @@
-import { toZonedTime } from "date-fns-tz";
-
-const TIMEZONE = "America/Sao_Paulo";
-const BETTING_CUTOFF_MS = 10 * 60 * 1000; // 10 minutos
+import { isBettingOpen } from "@/lib/timezone";
 
 /**
  * Verifica se o usuário ainda pode registrar ou alterar um palpite.
@@ -14,10 +11,7 @@ const BETTING_CUTOFF_MS = 10 * 60 * 1000; // 10 minutos
  * ou se o jogo já tiver começado/encerrado.
  */
 export function canUserPlaceGuess(matchDate: Date): boolean {
-  const nowUtc = new Date();
-  const nowSp = toZonedTime(nowUtc, TIMEZONE);
-  const matchSp = toZonedTime(new Date(matchDate), TIMEZONE);
-  return nowSp.getTime() < matchSp.getTime() - BETTING_CUTOFF_MS;
+  return isBettingOpen(matchDate);
 }
 
 /**

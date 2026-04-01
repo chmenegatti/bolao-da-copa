@@ -1,21 +1,22 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { calculatePoints } from "@/lib/scoring";
+import { recalculateUsersTotalPoints } from "@/lib/points-recalculation";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ALLOWED_ROLES = ["USER", "ADMIN"] as const;
+const ALLOWED_ROLES = [Role.USER, Role.ADMIN] as const;
 const MAX_SCORE = 30;
 const MAX_GOAL_MINUTE = 130;
 const MAX_TEAM_NAME_LENGTH = 60;
 const MAX_PLAYER_NAME_LENGTH = 80;
 
-function isAllowedRole(role: string): role is (typeof ALLOWED_ROLES)[number] {
-  return ALLOWED_ROLES.includes(role as (typeof ALLOWED_ROLES)[number]);
+function isAllowedRole(role: string): role is Role {
+  return ALLOWED_ROLES.includes(role as Role);
 }
 
 export async function finishMatch(
@@ -91,23 +92,7 @@ export async function finishMatch(
       });
     }
 
-    const userIds = [...new Set(guesses.map((g) => g.userId))];
-    for (const userId of userIds) {
-      const matchPoints = await tx.guess.aggregate({
-        where: { userId, pointsEarned: { not: null } },
-        _sum: { pointsEarned: true },
-      });
-      const tsPoints = await tx.topScorerBet.findUnique({ where: { userId } });
-      const chPoints = await tx.championBet.findUnique({ where: { userId } });
-      const total =
-        (matchPoints._sum.pointsEarned ?? 0) +
-        (tsPoints?.pointsEarned ?? 0) +
-        (chPoints?.pointsEarned ?? 0);
-      await tx.user.update({
-        where: { id: userId },
-        data: { totalPoints: total },
-      });
-    }
+    await recalculateUsersTotalPoints(tx, guesses.map((g) => g.userId));
   });
 
   revalidatePath("/");
@@ -226,7 +211,7 @@ export async function createUser(formData: FormData) {
   const name = (formData.get("name") as string | null)?.trim() ?? "";
   const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
   const password = (formData.get("password") as string | null) ?? "";
-  const role = ((formData.get("role") as string | null)?.trim() ?? "USER").toUpperCase();
+  const role = ((formData.get("role") as string | null)?.trim() ?? Role.USER).toUpperCase();
 
   if (!name || !email || !password) {
     return { error: "Preencha todos os campos." };
@@ -290,7 +275,7 @@ export async function updateUser(userId: string, formData: FormData) {
     return { error: "Email já em uso por outro usuário." };
   }
 
-  const data: { name: string; email: string; role: string; password?: string } = { name, email, role };
+  const data: Prisma.UserUpdateInput = { name, email, role };
   if (password && password.length > 0) {
     if (password.length < 6) return { error: "Senha deve ter pelo menos 6 caracteres." };
     data.password = await hash(password, 12);

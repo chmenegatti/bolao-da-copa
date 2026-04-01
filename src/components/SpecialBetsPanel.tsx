@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Crown, Crosshair, Trophy, Lock } from "lucide-react";
+import { Crown, Crosshair, Lock } from "lucide-react";
 import {
   saveTopScorerBet,
   saveChampionBet,
@@ -202,10 +202,10 @@ export default function SpecialBetsPanel({
         {topScorerBet?.pointsEarned !== null && topScorerBet?.pointsEarned !== undefined && (
           <Badge
             className={`mb-4 ${topScorerBet.pointsEarned >= 35
-                ? "bg-green-600 text-white"
-                : topScorerBet.pointsEarned > 0
-                  ? "bg-amber-500 text-white"
-                  : "bg-muted text-muted-foreground"
+              ? "bg-green-600 text-white"
+              : topScorerBet.pointsEarned > 0
+                ? "bg-amber-500 text-white"
+                : "bg-muted text-muted-foreground"
               }`}
           >
             +{topScorerBet.pointsEarned} pts
@@ -282,10 +282,10 @@ export default function SpecialBetsPanel({
         {championBet?.pointsEarned !== null && championBet?.pointsEarned !== undefined && (
           <Badge
             className={`mb-4 ${championBet.pointsEarned >= 90
-                ? "bg-green-600 text-white"
-                : championBet.pointsEarned >= 50
-                  ? "bg-amber-500 text-white"
-                  : "bg-muted text-muted-foreground"
+              ? "bg-green-600 text-white"
+              : championBet.pointsEarned >= 50
+                ? "bg-amber-500 text-white"
+                : "bg-muted text-muted-foreground"
               }`}
           >
             +{championBet.pointsEarned} pts
