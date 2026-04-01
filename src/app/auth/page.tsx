@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Star, Target, Trophy, CheckCircle2 } from "lucide-react";
+import { Star, Target, Trophy, CheckCircle2, Crown, Crosshair } from "lucide-react";
 import { signUp, login } from "@/app/actions/auth";
 import { toast } from "sonner";
 
@@ -52,11 +52,11 @@ export default function AuthPage() {
             Dê seus palpites nas partidas da Copa e dispute com seus amigos!
           </p>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <h3 className="font-display text-lg font-semibold text-gold">
               Sistema de Pontuação
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
                   <Target className="h-5 w-5 text-gold" />
@@ -92,12 +92,34 @@ export default function AuthPage() {
                   </p>
                 </div>
               </div>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                  <Crosshair className="h-5 w-5 text-gold" />
+                </div>
+                <div>
+                  <p className="font-semibold">Artilheiro: 35 ou 20 pontos</p>
+                  <p className="text-sm text-white/60">
+                    35 = jogador + gols, 20 = apenas jogador
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                  <Crown className="h-5 w-5 text-gold" />
+                </div>
+                <div>
+                  <p className="font-semibold">Campeão: 90, 70 ou 50 pontos</p>
+                  <p className="text-sm text-white/60">
+                    90 = campeão + placar + vice, 70 = campeão + placar, 50 = só campeão
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Right - Auth form */}
-        <Card className="p-8">
+        <Card className="p-8 lg:p-10">
           {/* Mobile branding */}
           <div className="lg:hidden flex items-center gap-2 mb-6 justify-center">
             <Star className="h-7 w-7 text-gold" />
@@ -117,35 +139,38 @@ export default function AuthPage() {
             </p>
           </div>
 
-          <form action={handleSubmit} className="space-y-4">
+          <form action={handleSubmit} className="space-y-5">
             {!isLogin && (
-              <div>
+              <div className="space-y-1.5">
                 <Label htmlFor="name">Nome</Label>
                 <Input
                   id="name"
                   name="name"
                   placeholder="Seu nome"
+                  className="h-11 px-4 text-base"
                   required={!isLogin}
                 />
               </div>
             )}
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
                 placeholder="seu@email.com"
+                className="h-11 px-4 text-base"
                 required
               />
             </div>
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="password">Senha</Label>
               <Input
                 id="password"
                 name="password"
                 type="password"
                 placeholder={isLogin ? "Sua senha" : "Mín. 6 caracteres"}
+                className="h-11 px-4 text-base"
                 required
                 minLength={6}
               />
@@ -155,7 +180,7 @@ export default function AuthPage() {
               <p className="text-sm text-destructive text-center">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" className="w-full h-11 text-base" disabled={isPending}>
               {isPending
                 ? "Aguarde..."
                 : isLogin
