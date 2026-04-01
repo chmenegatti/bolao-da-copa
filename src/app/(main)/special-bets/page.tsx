@@ -3,6 +3,8 @@ import { getRequiredUser } from "@/lib/auth-helpers";
 import { canUserPlaceGuess } from "@/lib/game-logic";
 import SpecialBetsPanel from "@/components/SpecialBetsPanel";
 
+export const dynamic = "force-dynamic";
+
 export default async function SpecialBetsPage() {
   const user = await getRequiredUser();
 

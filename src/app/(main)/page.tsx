@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getRequiredUser } from "@/lib/auth-helpers";
 import GamesList from "@/components/GamesList";
 
+export const dynamic = "force-dynamic";
+
 export default async function GamesPage() {
   const user = await getRequiredUser();
 

@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Target, XCircle, Trophy, Crown, Crosshair } from "lucide-react";
 import { formatMatchDate, formatMatchTime } from "@/lib/timezone";
 
+export const dynamic = "force-dynamic";
+
 export default async function MyBetsPage() {
   const user = await getRequiredUser();
 

@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 import AdminPanel from "@/components/AdminPanel";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   await requireAdmin();
 

@@ -8,6 +8,8 @@ import {
   logLoginAttempt,
 } from "@/lib/auth-rate-limit";
 
+type UserRole = "USER" | "ADMIN";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   session: { strategy: "jwt" },
@@ -87,14 +89,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as { role: string }).role;
+        token.role = (user as { role: UserRole }).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.role = token.role as UserRole;
       }
       return session;
     },

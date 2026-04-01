@@ -276,11 +276,7 @@ export default function AdminPanel({
               disabled={isPending || resetConfirmation.trim().toUpperCase() !== "RESETAR"}
               onClick={() => {
                 startTransition(async () => {
-                  const result = await resetTournamentData();
-                  if (result?.error) {
-                    toast.error(result.error);
-                    return;
-                  }
+                  await resetTournamentData();
                   toast.success("Base da competição resetada.");
                   setResetConfirmation("");
                   setResetDialogOpen(false);
