@@ -1,0 +1,50 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+import { getRequiredUser } from "@/lib/auth-helpers";
+import { isBettingOpen } from "@/lib/timezone";
+import { revalidatePath } from "next/cache";
+
+export async function saveGuess(matchId: string, guessA: number, guessB: number) {
+  const user = await getRequiredUser();
+
+  if (guessA < 0 || guessB < 0 || !Number.isInteger(guessA) || !Number.isInteger(guessB)) {
+    return { error: "Placares devem ser números inteiros ≥ 0." };
+  }
+
+  const match = await prisma.match.findUnique({ where: { id: matchId } });
+  if (!match) {
+    return { error: "Partida não encontrada." };
+  }
+
+  if (match.status === "FINISHED") {
+    return { error: "Esta partida já foi finalizada." };
+  }
+
+  if (!isBettingOpen(match.datetime)) {
+    return { error: "Apostas encerradas. Faltam menos de 10 minutos para o jogo." };
+  }
+
+  await prisma.guess.upsert({
+    where: {
+      userId_matchId: {
+        userId: user.id,
+        matchId,
+      },
+    },
+    update: {
+      guessA,
+      guessB,
+    },
+    create: {
+      userId: user.id,
+      matchId,
+      guessA,
+      guessB,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/my-bets");
+  return { success: true };
+}
