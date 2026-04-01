@@ -27,6 +27,7 @@ export function canUserPlaceGuess(matchDate: Date): boolean {
  *  25 pts — Placar exato                   (ex: 2×1 → 2×1)
  *  18 pts — Vencedor/empate + saldo iguais (ex: 3×1 → 2×0 — ambos vitória com +2)
  *  10 pts — Apenas vencedor ou empate      (ex: 1×0 → 3×0)
+ *   5 pts — Acertou gols de um time         (ex: 1×0 → 0×0, acertou o zero)
  *   0 pts — Erro total
  */
 export function calculateGuessPoints(
@@ -52,6 +53,9 @@ export function calculateGuessPoints(
 
   // Apenas o vencedor (ou empate)
   if (guessWinner === realWinner) return 10;
+
+  // Acertou o número de gols de pelo menos um dos times (inclui zero)
+  if (guessA === realA || guessB === realB) return 5;
 
   return 0;
 }

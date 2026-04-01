@@ -34,6 +34,10 @@ export default function GamesList({ matches, guesses }: GamesListProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleBet = (game: Match) => {
+    const isFinished = game.status === "FINISHED" || (game.scoreA !== null && game.scoreB !== null);
+    if (isFinished) {
+      return;
+    }
     setSelectedGame(game);
     setDialogOpen(true);
   };

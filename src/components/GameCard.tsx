@@ -28,7 +28,9 @@ interface GameCardProps {
 
 export default function GameCard({ game, guess, onBet }: GameCardProps) {
   const open = isBettingOpen(new Date(game.datetime));
-  const isFinished = game.status === "FINISHED";
+  const hasFinalScore = game.scoreA !== null && game.scoreB !== null;
+  const isFinished = game.status === "FINISHED" || hasFinalScore;
+  const canBet = open && !isFinished;
 
   return (
     <Card className="overflow-hidden border-border/60 hover:shadow-md transition-shadow animate-fade-in">
@@ -80,12 +82,12 @@ export default function GameCard({ game, guess, onBet }: GameCardProps) {
       {guess && (
         <div
           className={`mx-4 mb-3 rounded-lg px-3 py-2 text-sm ${isFinished
-              ? (guess.pointsEarned ?? 0) >= 25
-                ? "bg-success/10 border border-success/30"
-                : (guess.pointsEarned ?? 0) >= 10
-                  ? "bg-warning/10 border border-warning/30"
-                  : "bg-muted/50 border border-border"
-              : "bg-primary/5 border border-primary/20"
+            ? (guess.pointsEarned ?? 0) >= 25
+              ? "bg-success/10 border border-success/30"
+              : (guess.pointsEarned ?? 0) > 0
+                ? "bg-warning/10 border border-warning/30"
+                : "bg-muted/50 border border-border"
+            : "bg-primary/5 border border-primary/20"
             }`}
         >
           <div className="flex items-center justify-between">
@@ -98,7 +100,7 @@ export default function GameCard({ game, guess, onBet }: GameCardProps) {
                 className={
                   guess.pointsEarned >= 25
                     ? "bg-success text-success-foreground"
-                    : guess.pointsEarned >= 10
+                    : guess.pointsEarned > 0
                       ? "bg-warning text-warning-foreground"
                       : "bg-muted text-muted-foreground"
                 }
@@ -111,9 +113,9 @@ export default function GameCard({ game, guess, onBet }: GameCardProps) {
       )}
 
       {/* Action */}
-      {!isFinished && onBet && (
+      {onBet && (
         <div className="px-4 pb-4">
-          {open ? (
+          {canBet ? (
             <Button
               onClick={() => onBet(game)}
               className="w-full"
@@ -130,6 +132,11 @@ export default function GameCard({ game, guess, onBet }: GameCardProps) {
                   Fazer Palpite
                 </>
               )}
+            </Button>
+          ) : isFinished ? (
+            <Button className="w-full" variant="outline" disabled>
+              <Lock className="h-4 w-4 mr-2" />
+              Partida encerrada
             </Button>
           ) : (
             <div className="flex items-center justify-center gap-2 rounded-lg bg-destructive/10 py-2 text-sm text-destructive">

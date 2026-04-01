@@ -127,6 +127,13 @@ export default function HelpPage() {
               <p className="text-xs text-muted-foreground mt-1">Acertou só quem ganhou (ou empate)</p>
             </div>
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
+            <div className="text-center p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
+              <PointsBadge points={5} variant="default" />
+              <p className="font-bold mt-2 text-sm">Gols de um time</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou os gols de pelo menos uma equipe (incluindo zero)</p>
+            </div>
+          </div>
 
           <Separator />
 
@@ -154,7 +161,7 @@ export default function HelpPage() {
                 real="2 × 1"
                 guess="1 × 0"
                 points={10}
-                description="Brasil venceu nos dois casos, mas a diferença foi diferente (1 vs 1… aguarda, mesma diferença seria 18). Nesse exemplo 2-1 real vs 1-0 palpite: saldo igual (1), então seriam 18 pts. Veja abaixo um exemplo real de 10 pts."
+                description="Brasil venceu nos dois casos, mas o saldo foi diferente (1 vs 2). Apenas o vencedor correto."
                 variant="bronze"
               />
               <ExampleCard
@@ -164,6 +171,14 @@ export default function HelpPage() {
                 points={10}
                 description="Brasil venceu nos dois casos, mas o saldo foi diferente (2 vs 1). Apenas o vencedor correto."
                 variant="bronze"
+              />
+              <ExampleCard
+                label="Coreia do Sul 0 × 0 Rep. Tcheca"
+                real="0 × 0"
+                guess="1 × 0"
+                points={5}
+                description="Acertou os gols da Rep. Tcheca (zero), mas errou vencedor/empate."
+                variant="default"
               />
               <ExampleCard
                 label="Brasil 2 × 1 Argentina"
@@ -364,6 +379,10 @@ export default function HelpPage() {
                 <tr>
                   <td className="py-2 pr-4">Apenas vencedor (ou empate) correto</td>
                   <td className="py-2 text-right"><PointsBadge points={10} variant="bronze" /></td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4">Acertou os gols de um dos times (incluindo zero)</td>
+                  <td className="py-2 text-right"><PointsBadge points={5} variant="default" /></td>
                 </tr>
                 <tr>
                   <td className="py-2 pr-4">Artilheiro: nome + gols corretos</td>

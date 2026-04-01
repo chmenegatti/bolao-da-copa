@@ -105,7 +105,7 @@ export default async function MyBetsPage() {
           {guesses.map((guess) => {
             const game = guess.match;
             const isExact = guess.pointsEarned === 25;
-            const isPartial = (guess.pointsEarned ?? 0) >= 10;
+            const isPartial = (guess.pointsEarned ?? 0) > 0;
 
             return (
               <Card key={guess.id} className="p-4 animate-fade-in">

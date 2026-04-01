@@ -94,6 +94,17 @@ export default function AuthPage() {
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-5 w-5 text-white/60" />
+                </div>
+                <div>
+                  <p className="font-semibold">5 pontos - Gols de um time</p>
+                  <p className="text-sm text-white/60">
+                    Acertou os gols de pelo menos uma equipe (incluindo zero)
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
                   <Crosshair className="h-5 w-5 text-gold" />
                 </div>
                 <div>
