@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -480,6 +480,17 @@ function GoalDialog({
   const [player, setPlayer] = useState("");
   const [minute, setMinute] = useState("");
 
+  useEffect(() => {
+    if (match) {
+      setTeam("A");
+      setPlayer("");
+      setMinute("");
+    }
+  }, [match]);
+
+  const selectedTeamLabel =
+    team === "A" ? (match?.teamA ?? "Time A") : (match?.teamB ?? "Time B");
+
   const handleSubmit = () => {
     if (!player.trim() || !minute) {
       toast.error("Preencha jogador e minuto.");
@@ -499,29 +510,34 @@ function GoalDialog({
         </DialogHeader>
         {match && (
           <div className="space-y-4 py-2">
-            <div>
-              <Label>Time</Label>
-              <Select value={team} onValueChange={(value) => setTeam(value ?? "A")}>
-                <SelectTrigger>
+            <div className="space-y-2">
+              <Label htmlFor="goal-team" className="block">Time</Label>
+              <Select
+                value={selectedTeamLabel}
+                onValueChange={(value) => setTeam(value === match.teamA ? "A" : "B")}
+              >
+                <SelectTrigger id="goal-team">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="A">{match.teamA}</SelectItem>
-                  <SelectItem value="B">{match.teamB}</SelectItem>
+                  <SelectItem value={match.teamA}>{match.teamA}</SelectItem>
+                  <SelectItem value={match.teamB}>{match.teamB}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Jogador</Label>
+            <div className="space-y-2">
+              <Label htmlFor="goal-player" className="block">Jogador</Label>
               <Input
+                id="goal-player"
                 placeholder="Nome do jogador"
                 value={player}
                 onChange={(e) => setPlayer(e.target.value)}
               />
             </div>
-            <div>
-              <Label>Minuto</Label>
+            <div className="space-y-2">
+              <Label htmlFor="goal-minute" className="block">Minuto</Label>
               <Input
+                id="goal-minute"
                 type="number"
                 min={1}
                 max={120}
