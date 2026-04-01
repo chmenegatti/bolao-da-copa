@@ -102,3 +102,17 @@ model TournamentResult {
   finalScoreA    Int?
   finalScoreB    Int?
 }
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String?
+  ip        String
+  success   Boolean
+  blocked   Boolean  @default(false)
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([ip, createdAt])
+  @@index([email, createdAt])
+}

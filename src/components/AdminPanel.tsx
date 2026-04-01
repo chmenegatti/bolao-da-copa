@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -480,14 +480,6 @@ function GoalDialog({
   const [player, setPlayer] = useState("");
   const [minute, setMinute] = useState("");
 
-  useEffect(() => {
-    if (match) {
-      setTeam("A");
-      setPlayer("");
-      setMinute("");
-    }
-  }, [match]);
-
   const selectedTeamLabel =
     team === "A" ? (match?.teamA ?? "Time A") : (match?.teamB ?? "Time B");
 
@@ -504,7 +496,7 @@ function GoalDialog({
 
   return (
     <Dialog open={!!match} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent key={match?.id ?? "goal-dialog"} className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display">Adicionar Gol</DialogTitle>
         </DialogHeader>
