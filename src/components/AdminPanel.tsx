@@ -182,7 +182,8 @@ export default function AdminPanel({
           <div className="space-y-1">
             <p className="font-semibold text-destructive">Resetar base da competição</p>
             <p className="text-sm text-muted-foreground">
-              Remove jogos, gols, palpites, apostas especiais, resultados e zera os pontos de todos os usuários.
+              Remove gols, palpites, apostas especiais, resultados, login attempts e zera os pontos de todos os usuários.
+              As partidas da Copa são mantidas.
             </p>
           </div>
           <Button variant="destructive" onClick={() => setResetDialogOpen(true)} disabled={isPending}>
@@ -247,8 +248,8 @@ export default function AdminPanel({
           </DialogHeader>
           <div className="space-y-4 py-2">
             <p className="text-sm text-muted-foreground">
-              Essa ação apaga jogos, gols, palpites, apostas especiais, resultados e login attempts,
-              além de zerar os pontos de todos os usuários. Não remove as contas.
+              Essa ação apaga gols, palpites, apostas especiais, resultados e login attempts,
+              além de zerar os pontos de todos os usuários. As partidas ficam preservadas e as contas não são removidas.
             </p>
             <div className="space-y-2">
               <Label htmlFor="reset-confirmation" className="block">
