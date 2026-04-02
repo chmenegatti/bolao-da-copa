@@ -188,7 +188,7 @@ export default function HelpPage() {
               <ExampleCard
                 label="Brasil 2 × 1 Argentina"
                 real="2 × 1"
-                guess="0 × 1"
+                guess="0 × 2"
                 points={0}
                 description="Palpitou que a Argentina ganharia. Errou o vencedor — zero pontos."
                 variant="default"
