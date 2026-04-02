@@ -56,9 +56,6 @@ export default function AppHeader({
               <span className="font-display text-lg font-bold tracking-tight block">
                 Palpite Perfeito
               </span>
-              <span className="text-[11px] text-white/60 uppercase tracking-[0.18em]">
-                Dashboard · Jogos · Rankings
-              </span>
             </div>
           </Link>
 
