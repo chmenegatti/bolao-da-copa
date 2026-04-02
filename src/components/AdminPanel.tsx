@@ -531,6 +531,7 @@ function ResultsTab({
 
       {/* Add Goal Dialog */}
       <GoalDialog
+        key={goalDialogMatch?.id ?? "goal-dialog"}
         match={goalDialogMatch}
         onClose={() => setGoalDialogMatch(null)}
         onAdd={(goal) => {
@@ -559,9 +560,6 @@ function GoalDialog({
   const [player, setPlayer] = useState("");
   const [minute, setMinute] = useState("");
 
-  const selectedTeamLabel =
-    team === "A" ? (match?.teamA ?? "Time A") : (match?.teamB ?? "Time B");
-
   const handleSubmit = () => {
     if (!player.trim() || !minute) {
       toast.error("Preencha jogador e minuto.");
@@ -571,6 +569,7 @@ function GoalDialog({
     setPlayer("");
     setMinute("");
     setTeam("A");
+    onClose();
   };
 
   return (
@@ -584,15 +583,15 @@ function GoalDialog({
             <div className="space-y-2">
               <Label htmlFor="goal-team" className="block">Time</Label>
               <Select
-                value={selectedTeamLabel}
-                onValueChange={(value) => setTeam(value === match.teamA ? "A" : "B")}
+                value={team}
+                onValueChange={(value) => setTeam(value)}
               >
                 <SelectTrigger id="goal-team">
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione o time" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={match.teamA}>{match.teamA}</SelectItem>
-                  <SelectItem value={match.teamB}>{match.teamB}</SelectItem>
+                  <SelectItem value="A">{match.teamA}</SelectItem>
+                  <SelectItem value="B">{match.teamB}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -620,10 +619,10 @@ function GoalDialog({
           </div>
         )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit}>Adicionar</Button>
+          <Button type="button" onClick={handleSubmit}>Adicionar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

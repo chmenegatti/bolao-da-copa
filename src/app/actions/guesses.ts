@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getRequiredUser } from "@/lib/auth-helpers";
 import { canUserPlaceGuess } from "@/lib/game-logic";
@@ -34,24 +35,34 @@ export async function saveGuess(matchId: string, guessA: number, guessB: number)
     return { error: "Prazo encerrado. Apostas fecham 10 minutos antes do início do jogo." };
   }
 
-  await prisma.guess.upsert({
-    where: {
-      userId_matchId: {
+  try {
+    await prisma.guess.upsert({
+      where: {
+        userId_matchId: {
+          userId: user.id,
+          matchId,
+        },
+      },
+      update: {
+        guessA,
+        guessB,
+      },
+      create: {
         userId: user.id,
         matchId,
+        guessA,
+        guessB,
       },
-    },
-    update: {
-      guessA,
-      guessB,
-    },
-    create: {
-      userId: user.id,
-      matchId,
-      guessA,
-      guessB,
-    },
-  });
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2003"
+    ) {
+      return { error: "Partida não encontrada ou indisponível no momento." };
+    }
+    throw error;
+  }
 
   revalidatePath("/");
   revalidatePath("/my-bets");

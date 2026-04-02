@@ -33,7 +33,7 @@
 
 ## 🎯 Sobre o projeto
 
-**Palpite Perfeito** é uma aplicação web de bolão esportivo construída com Next.js 16, focada na Copa do Mundo 2026. Cada participante palpita nos placares das partidas, aposta no artilheiro e no campeão — acumulando pontos conforme a precisão das previsões.
+**Palpite Perfeito** é uma aplicação web de bolão esportivo construída com Next.js 16, focada na Copa do Mundo 2026. Cada participante palpita nos placares das partidas, aposta no artilheiro e no campeão — acumulando pontos conforme a precisão das previsões. Também existe um seed de teste para Brasileirão 2026, útil para validar rodada e fluxo de apostas com jogos reais de teste.
 
 ### ✨ Destaques
 
@@ -64,6 +64,7 @@
 | 👥 **Gerenciar usuários** | CRUD de participantes com controle de roles |
 | 🏅 **Definir artilheiro** | Define o artilheiro oficial e recalcula as apostas |
 | 🥇 **Definir campeão** | Define campeão/vice/placar da final e recalcula |
+| ♻️ **Resetar base** | Limpa palpites, gols, apostas especiais, resultados e pontos, preservando as partidas |
 
 ---
 
@@ -140,6 +141,16 @@ npx prisma migrate dev        # Executa as migrations
 npm run prisma:seed           # Popula com dados iniciais (opcional)
 ```
 
+### 3.1 Seed de teste do Brasileirão
+
+Se quiser subir uma base menor para teste com a rodada 10 do Brasileirão 2026, use o seed dedicado:
+
+```bash
+npm run prisma:seed:brasileirao-test
+```
+
+Esse modo cria usuários de teste e os jogos da rodada 10 exibidos no GE, para validar rapidamente o fluxo do app sem carregar toda a Copa.
+
 ### 4. Iniciar o servidor de desenvolvimento
 
 ```bash
@@ -193,6 +204,9 @@ npx prisma generate
 
 # Reset completo (⚠️ apaga todos os dados)
 npx prisma migrate reset --force
+
+# Seed de teste do Brasileirão 2026 (rodada 10)
+npm run prisma:seed:brasileirao-test
 ```
 
 ### Modelos principais
@@ -206,6 +220,17 @@ TopScorerBet   → aposta no artilheiro (única por usuário)
 ChampionBet    → aposta no campeão/vice/final (única por usuário)
 TournamentResult → resultado oficial (artilheiro e campeão)
 ```
+
+## ♻️ Reset administrativo
+
+No painel admin existe um botão de reset para reiniciar a competição antes de uma nova rodada ou evento.
+
+- Mantém as partidas cadastradas.
+- Remove gols, palpites, apostas especiais, resultados e login attempts.
+- Zera os pontos de todos os usuários.
+- Exige confirmação manual no painel para evitar limpeza acidental.
+
+O helper compartilhado do reset também é usado pelo seed, mas no seed completo a limpeza inclui as partidas para recriar a base do zero.
 
 ---
 
