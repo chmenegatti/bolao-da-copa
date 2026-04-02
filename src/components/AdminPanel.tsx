@@ -62,6 +62,7 @@ import {
   setChampionResult,
 } from "@/app/actions/special-bets";
 import { formatMatchDate, formatMatchTime } from "@/lib/timezone";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface GoalData {
@@ -307,7 +308,7 @@ export default function AdminPanel({
         </TabsContent>
 
         <TabsContent value="users">
-          <UsersTab users={users} isPending={isPending} startTransition={startTransition} />
+          <UsersTab users={users} guesses={guesses} isPending={isPending} startTransition={startTransition} />
         </TabsContent>
 
         <TabsContent value="guesses">
@@ -1195,15 +1196,23 @@ function TournamentTab({
 
 function UsersTab({
   users,
+  guesses,
   isPending,
   startTransition,
 }: {
   users: User[];
+  guesses: Guess[];
   isPending: boolean;
   startTransition: React.TransitionStartFunction;
 }) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState(users[0]?.id ?? null);
+
+  const selectedUser = users.find((user) => user.id === selectedUserId) ?? null;
+  const selectedUserGuesses = guesses
+    .filter((guess) => guess.userId === selectedUserId)
+    .sort((a, b) => new Date(b.match.datetime).getTime() - new Date(a.match.datetime).getTime());
 
   const handleCreate = (formData: FormData) => {
     startTransition(async () => {
@@ -1249,6 +1258,129 @@ function UsersTab({
           Novo Usuário
         </Button>
       </div>
+
+      <Card className="p-4">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h3 className="font-display text-lg font-semibold">Board de usuários</h3>
+            <p className="text-sm text-muted-foreground">
+              Clique em um usuário para ver os palpites dele.
+            </p>
+          </div>
+          {selectedUser && (
+            <Badge variant="outline">
+              {selectedUserGuesses.length} palpites
+            </Badge>
+          )}
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {users.map((user) => {
+            const isSelected = user.id === selectedUserId;
+            const userGuessesCount = guesses.filter((guess) => guess.userId === user.id).length;
+
+            return (
+              <button
+                key={user.id}
+                type="button"
+                onClick={() => setSelectedUserId(user.id)}
+                className={cn(
+                  "rounded-xl border p-4 text-left transition-colors",
+                  isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-card hover:border-primary/40 hover:bg-muted/50"
+                )}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold">{user.name}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                  </div>
+                  {user.role === "ADMIN" ? (
+                    <Badge className="bg-amber-600 text-white">Admin</Badge>
+                  ) : (
+                    <Badge variant="secondary">Usuário</Badge>
+                  )}
+                </div>
+                <div className="mt-3 flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Pontos</span>
+                  <span className="font-semibold">{user.totalPoints}</span>
+                </div>
+                <div className="mt-1 flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Palpites</span>
+                  <span className="font-semibold">{userGuessesCount}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
+          <div>
+            <h3 className="font-display text-lg font-semibold">Palpites do usuário</h3>
+            <p className="text-sm text-muted-foreground">
+              {selectedUser ? `${selectedUser.name} · ${selectedUser.email}` : "Selecione um usuário no board"}
+            </p>
+          </div>
+          {selectedUser && (
+            <div className="flex gap-2">
+              <Badge variant="outline">{selectedUser.totalPoints} pts</Badge>
+              <Badge variant="outline">{selectedUserGuesses.length} palpites</Badge>
+            </div>
+          )}
+        </div>
+
+        {!selectedUser ? (
+          <p className="text-sm text-muted-foreground">Nenhum usuário selecionado.</p>
+        ) : selectedUserGuesses.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Este usuário ainda não fez palpites.</p>
+        ) : (
+          <div className="space-y-3">
+            {selectedUserGuesses.map((guess) => {
+              const isFinished = guess.match.status === "FINISHED";
+              const points = guess.pointsEarned ?? 0;
+
+              return (
+                <div key={guess.id} className="rounded-xl border p-4">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <p className="font-semibold">
+                        {guess.match.teamA} vs {guess.match.teamB}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatMatchDate(new Date(guess.match.datetime), "dd MMM")} · {formatMatchTime(new Date(guess.match.datetime))} · {guess.match.groupStage}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline">
+                        {guess.guessA} × {guess.guessB}
+                      </Badge>
+                      <Badge className={points === 25 ? "bg-green-600 text-white" : points > 0 ? "bg-amber-600 text-white" : "bg-muted text-muted-foreground"}>
+                        {isFinished ? `+${points} pts` : "Em aberto"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2 text-sm">
+                    <div className="rounded-lg bg-muted/50 p-3">
+                      <p className="text-xs text-muted-foreground mb-1">Resultado</p>
+                      <p className="font-semibold">
+                        {isFinished ? `${guess.match.scoreA} × ${guess.match.scoreB}` : "Ainda sem placar"}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-muted/50 p-3">
+                      <p className="text-xs text-muted-foreground mb-1">Status</p>
+                      <p className="font-semibold">{isFinished ? "Fechado" : "Aberto"}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Card>
 
       <Card>
         <Table>

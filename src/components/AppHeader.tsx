@@ -12,6 +12,7 @@ import {
   Shield,
   Star,
   Target,
+  LayoutDashboard,
   ListChecks,
   Crown,
   HelpCircle,
@@ -34,7 +35,8 @@ export default function AppHeader({
   const pathname = usePathname();
 
   const links = [
-    { href: "/", label: "Jogos", icon: Target },
+    { href: "/", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/jogos", label: "Jogos", icon: Target },
     { href: "/ranking", label: "Ranking", icon: Trophy },
     { href: "/special-bets", label: "Apostas Especiais", icon: Crown },
     { href: "/my-bets", label: "Meus Palpites", icon: ListChecks },
