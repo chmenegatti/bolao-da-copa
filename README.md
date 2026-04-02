@@ -2,7 +2,7 @@
 
 # ⭐ Palpite Perfeito
 
-### O bolão completo para a Copa do Mundo 2026
+### O bolão completo para a Copa do Mundo 2026!!
 
 *Faça seus palpites, dispute com amigos e comprove quem manda nas previsões!*
 
