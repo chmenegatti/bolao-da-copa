@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { PrismaBetterSQLite3 } from "@prisma/adapter-better-sqlite3";
 import { hash } from "bcryptjs";
-import { resetCompetitionData } from "../src/lib/reset-competition-data";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -21,6 +20,22 @@ type MatchSeed = {
   datetime: Date;
   groupStage: string;
 };
+
+async function resetCompetitionData(
+  tx: Prisma.TransactionClient,
+  options: { preserveMatches?: boolean } = {}
+) {
+  await tx.guess.deleteMany();
+  await tx.goal.deleteMany();
+  await tx.topScorerBet.deleteMany();
+  await tx.championBet.deleteMany();
+  await tx.tournamentResult.deleteMany();
+  await tx.loginAttempt.deleteMany();
+  if (!options.preserveMatches) {
+    await tx.match.deleteMany();
+  }
+  await tx.user.updateMany({ data: { totalPoints: 0 } });
+}
 
 const SEED_MODE = process.env.SEED_MODE ?? "worldcup";
 const adminPassword = process.env.ADMIN_PASS;
