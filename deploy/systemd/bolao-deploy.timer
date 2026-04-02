@@ -1,0 +1,15 @@
+[Unit]
+Description=Bolão da Copa — Auto Deploy Timer (verifica nova imagem a cada minuto)
+Requires=bolao-deploy.service
+
+[Timer]
+# Aguarda 2 min após o boot antes do primeiro disparo
+OnBootSec=2min
+# Repete a cada 1 minuto após a última execução do serviço
+OnUnitActiveSec=1min
+# Persiste disparos perdidos durante suspend/hibernate
+Persistent=true
+Unit=bolao-deploy.service
+
+[Install]
+WantedBy=timers.target

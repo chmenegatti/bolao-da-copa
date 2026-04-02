@@ -44,3 +44,36 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    name: Deploy na máquina local
+    needs: build-and-push
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Checkout (obtém compose files atualizados)
+        uses: actions/checkout@v5
+
+      - name: Linkar .env permanente
+        run: ln -sf /home/cesar-menegatti/js/bolao-da-copa/.env .env
+
+      - name: Pull nova imagem
+        run: docker compose -f docker-compose.local.yml pull app
+
+      - name: Rodar migrações
+        run: docker compose -f docker-compose.local.yml run --rm --no-deps app sh -c "npx prisma migrate deploy"
+
+      - name: Reiniciar container
+        run: docker compose -f docker-compose.local.yml up -d --force-recreate app
+
+      - name: Healthcheck
+        run: |
+          CONTAINER_ID="$(docker compose -f docker-compose.local.yml ps -q app)"
+          for i in $(seq 1 20); do
+            STATUS="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}starting{{end}}' "$CONTAINER_ID" 2>/dev/null || echo starting)"
+            echo "Tentativa $i: $STATUS"
+            [[ "$STATUS" == "healthy" ]] && exit 0
+            sleep 5
+          done
+          echo "Container não ficou saudável após o deploy." >&2
+          docker logs --tail 50 "$CONTAINER_ID"
+          exit 1
