@@ -54,6 +54,9 @@ import {
   updateUser,
   deleteUser,
   resetTournamentData,
+  seedAdminOnlyData,
+  seedBrasileiraoTestData,
+  seedWorldCupData,
 } from "@/app/actions/admin";
 import {
   setTopScorerResult,
@@ -190,6 +193,70 @@ export default function AdminPanel({
             <RotateCcw className="h-4 w-4 mr-2" />
             Resetar dados
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-primary/30 bg-primary/5">
+        <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-1">
+            <p className="font-semibold text-primary">Seeds rápidos</p>
+            <p className="text-sm text-muted-foreground">
+              Recria a base da Copa, recria a base de teste do Brasileirão ou atualiza apenas o admin.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              disabled={isPending}
+              onClick={() => {
+                if (!confirm("Isso vai recriar a base da Copa. Continuar?")) return;
+                startTransition(async () => {
+                  const result = await seedWorldCupData();
+                  if (result?.error) {
+                    toast.error(result.error);
+                  } else {
+                    toast.success("Seed da Copa concluído.");
+                  }
+                });
+              }}
+            >
+              Seed Copa
+            </Button>
+            <Button
+              variant="outline"
+              disabled={isPending}
+              onClick={() => {
+                if (!confirm("Isso vai recriar a base de teste do Brasileirão. Continuar?")) return;
+                startTransition(async () => {
+                  const result = await seedBrasileiraoTestData();
+                  if (result?.error) {
+                    toast.error(result.error);
+                  } else {
+                    toast.success("Seed de teste concluído.");
+                  }
+                });
+              }}
+            >
+              Seed Teste
+            </Button>
+            <Button
+              variant="outline"
+              disabled={isPending}
+              onClick={() => {
+                if (!confirm("Isso vai atualizar apenas o usuário admin. Continuar?")) return;
+                startTransition(async () => {
+                  const result = await seedAdminOnlyData();
+                  if (result?.error) {
+                    toast.error(result.error);
+                  } else {
+                    toast.success("Usuário admin atualizado.");
+                  }
+                });
+              }}
+            >
+              Seed Admin
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

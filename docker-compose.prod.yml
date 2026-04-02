@@ -21,6 +21,7 @@ services:
       HOSTNAME: 0.0.0.0
       PORT: 3000
       DATABASE_URL: ${DATABASE_URL:-file:/data/palpite.db}
+      ADMIN_PASS: ${ADMIN_PASS}
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:8080}
     volumes:
@@ -45,6 +46,7 @@ services:
       HOSTNAME: 0.0.0.0
       PORT: 3000
       DATABASE_URL: ${DATABASE_URL:-file:/data/palpite.db}
+      ADMIN_PASS: ${ADMIN_PASS}
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:8080}
     volumes:

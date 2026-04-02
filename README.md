@@ -212,6 +212,7 @@ Esse compose sobe o container `app`, aplica `prisma migrate deploy` e publica a 
 Depois de publicar a imagem no registry, o workflow de deploy usa as `GitHub Variables` e `GitHub Secrets` do repositório:
 
 - `NEXTAUTH_URL` em Variables, com a URL pública do seu ambiente
+- `ADMIN_PASS` em Secrets, com a senha do administrador criada pelo seed
 - `AUTH_SECRET` em Secrets, com o segredo do NextAuth
 
 Depois disso, o deploy roda automaticamente. Se quiser executar manualmente no servidor:
@@ -223,6 +224,14 @@ AUTH_SECRET=seu_secret \
 ```
 
 O script alterna entre `app-blue` e `app-green`, aplica migrations, valida o healthcheck e troca o upstream do proxy sem derrubar o site.
+
+No painel admin, existem três botões de seed:
+
+- `Seed Copa` recria a base da Copa do Mundo.
+- `Seed Teste` recria a base de teste do Brasileirão.
+- `Seed Admin` recria apenas o usuário admin.
+
+A senha do admin vem de `ADMIN_PASS`.
 
 ---
 

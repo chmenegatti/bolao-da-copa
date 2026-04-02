@@ -15,6 +15,7 @@ services:
       HOSTNAME: 0.0.0.0
       PORT: 3000
       DATABASE_URL: file:./prisma/dev.db
+      ADMIN_PASS: ${ADMIN_PASS}
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
     command: sh -lc "npx prisma migrate deploy && npm run start"

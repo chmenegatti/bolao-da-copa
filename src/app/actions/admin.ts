@@ -1,6 +1,7 @@
 "use server";
 
 import { Prisma, Role } from "@prisma/client";
+import { execFile } from "node:child_process";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { calculatePoints } from "@/lib/scoring";
@@ -8,6 +9,9 @@ import { recalculateUsersTotalPoints } from "@/lib/points-recalculation";
 import { resetCompetitionData } from "@/lib/reset-competition-data";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ALLOWED_ROLES = [Role.USER, Role.ADMIN] as const;
@@ -316,4 +320,47 @@ export async function resetTournamentData() {
   revalidatePath("/my-bets");
   revalidatePath("/special-bets");
   return { success: true };
+}
+
+type SeedMode = "admin-only" | "worldcup" | "brasileirao-test";
+
+async function runSeed(mode: SeedMode) {
+  await requireAdmin();
+
+  if (!process.env.ADMIN_PASS) {
+    return { error: "ADMIN_PASS precisa estar definido no ambiente de deploy." };
+  }
+
+  try {
+    await execFileAsync("npm", ["run", "-s", `prisma:seed:${mode}`], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        SEED_MODE: mode,
+      },
+      maxBuffer: 10 * 1024 * 1024,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Falha ao executar o seed.";
+    return { error: message };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/ranking");
+  revalidatePath("/my-bets");
+  revalidatePath("/special-bets");
+  return { success: true };
+}
+
+export async function seedWorldCupData() {
+  return runSeed("worldcup");
+}
+
+export async function seedBrasileiraoTestData() {
+  return runSeed("brasileirao-test");
+}
+
+export async function seedAdminOnlyData() {
+  return runSeed("admin-only");
 }

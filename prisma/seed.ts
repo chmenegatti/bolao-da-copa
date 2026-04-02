@@ -23,41 +23,31 @@ type MatchSeed = {
 };
 
 const SEED_MODE = process.env.SEED_MODE ?? "worldcup";
+const adminPassword = process.env.ADMIN_PASS;
 
-async function seedUsers() {
-  const adminPassword = await hash("Admin@2026#", 12);
+if (!adminPassword) {
+  throw new Error("ADMIN_PASS environment variable is required");
+}
+
+const adminPasswordValue = adminPassword;
+
+async function seedAdminUser(adminPasswordValue: string) {
+  const hashedPassword = await hash(adminPasswordValue, 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@bolao.com" },
     update: {
       name: "Administrador",
-      password: adminPassword,
+      password: hashedPassword,
       role: "ADMIN",
     },
     create: {
       name: "Administrador",
       email: "admin@bolao.com",
-      password: adminPassword,
+      password: hashedPassword,
       role: "ADMIN",
     },
   });
   console.log("Admin criado:", admin.email);
-
-  const userPassword = await hash("user123", 12);
-  const user = await prisma.user.upsert({
-    where: { email: "jogador@bolao.com" },
-    update: {
-      name: "Jogador Teste",
-      password: userPassword,
-      role: "USER",
-    },
-    create: {
-      name: "Jogador Teste",
-      email: "jogador@bolao.com",
-      password: userPassword,
-      role: "USER",
-    },
-  });
-  console.log("Usuário criado:", user.email);
 }
 
 function buildBrasileiraoTestMatches(): MatchSeed[] {
@@ -93,7 +83,7 @@ async function seedBrasileiraoTest() {
     await resetCompetitionData(tx, { preserveMatches: false });
   });
 
-  await seedUsers();
+  await seedAdminUser(adminPasswordValue);
 
   for (const match of matches) {
     await prisma.match.create({ data: match });
@@ -107,7 +97,7 @@ async function seedWorldCup2026() {
     await resetCompetitionData(tx, { preserveMatches: false });
   });
 
-  await seedUsers();
+  await seedAdminUser(adminPasswordValue);
 
   // ============================================================
   // Copa do Mundo FIFA 2026 - Fase de Grupos (72 jogos oficiais)
@@ -273,6 +263,12 @@ async function seedWorldCup2026() {
 async function main() {
   if (SEED_MODE === "brasileirao-test") {
     await seedBrasileiraoTest();
+    return;
+  }
+
+  if (SEED_MODE === "admin-only") {
+    await seedAdminUser(adminPasswordValue);
+    console.log("Apenas o admin foi criado/atualizado");
     return;
   }
 
