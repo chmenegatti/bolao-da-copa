@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   await requireAdmin();
 
-  const [matches, users, tournamentResultRows] = await Promise.all([
+  const [matches, users, tournamentResultRows, guesses] = await Promise.all([
     prisma.match.findMany({
       orderBy: { datetime: "asc" },
       include: {
@@ -20,6 +20,26 @@ export default async function AdminPage() {
       select: { id: true, name: true, email: true, role: true, totalPoints: true, createdAt: true },
     }),
     prisma.tournamentResult.findMany(),
+    prisma.guess.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true },
+        },
+        match: {
+          select: {
+            id: true,
+            teamA: true,
+            teamB: true,
+            datetime: true,
+            groupStage: true,
+            scoreA: true,
+            scoreB: true,
+            status: true,
+          },
+        },
+      },
+    }),
   ]);
 
   const topScorerRow = tournamentResultRows.find((r) => r.key === "topScorer");
@@ -63,6 +83,21 @@ export default async function AdminPage() {
     createdAt: u.createdAt.toISOString(),
   }));
 
+  const serializedGuesses = guesses.map((guess) => ({
+    id: guess.id,
+    userId: guess.userId,
+    matchId: guess.matchId,
+    guessA: guess.guessA,
+    guessB: guess.guessB,
+    pointsEarned: guess.pointsEarned,
+    createdAt: guess.createdAt.toISOString(),
+    user: guess.user,
+    match: {
+      ...guess.match,
+      datetime: guess.match.datetime.toISOString(),
+    },
+  }));
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="mb-8">
@@ -71,7 +106,12 @@ export default async function AdminPage() {
           Gerencie partidas, resultados e usuários
         </p>
       </div>
-      <AdminPanel matches={serializedMatches} users={serializedUsers} tournamentResults={tournamentResults} />
+      <AdminPanel
+        matches={serializedMatches}
+        users={serializedUsers}
+        guesses={serializedGuesses}
+        tournamentResults={tournamentResults}
+      />
     </div>
   );
 }

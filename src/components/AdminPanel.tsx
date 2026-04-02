@@ -93,6 +93,31 @@ interface User {
   createdAt: string;
 }
 
+interface Guess {
+  id: string;
+  userId: string;
+  matchId: string;
+  guessA: number;
+  guessB: number;
+  pointsEarned: number | null;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  match: {
+    id: string;
+    teamA: string;
+    teamB: string;
+    datetime: string;
+    groupStage: string;
+    scoreA: number | null;
+    scoreB: number | null;
+    status: string;
+  };
+}
+
 interface TournamentResultData {
   topScorer: { playerName: string; totalGoals: number } | null;
   champion: {
@@ -114,10 +139,12 @@ const KNOCKOUT_STAGES = [
 export default function AdminPanel({
   matches,
   users,
+  guesses,
   tournamentResults,
 }: {
   matches: Match[];
   users: User[];
+  guesses: Guess[];
   tournamentResults: TournamentResultData;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -244,7 +271,7 @@ export default function AdminPanel({
 
       {/* Tabs */}
       <Tabs defaultValue="results" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="results" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Resultados
@@ -260,6 +287,10 @@ export default function AdminPanel({
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Usuários
+          </TabsTrigger>
+          <TabsTrigger value="guesses" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Palpites
           </TabsTrigger>
         </TabsList>
 
@@ -277,6 +308,10 @@ export default function AdminPanel({
 
         <TabsContent value="users">
           <UsersTab users={users} isPending={isPending} startTransition={startTransition} />
+        </TabsContent>
+
+        <TabsContent value="guesses">
+          <GuessesTab guesses={guesses} />
         </TabsContent>
       </Tabs>
 
@@ -1289,6 +1324,127 @@ function UsersTab({
         isPending={isPending}
         submitLabel="Salvar"
       />
+    </div>
+  );
+}
+
+// ==================== GUESSES TAB ====================
+
+function GuessesTab({ guesses }: { guesses: Guess[] }) {
+  const totalGuesses = guesses.length;
+  const closedGuesses = guesses.filter((guess) => guess.match.status === "FINISHED");
+  const openGuesses = guesses.filter((guess) => guess.match.status !== "FINISHED");
+  const totalPoints = guesses.reduce((sum, guess) => sum + (guess.pointsEarned ?? 0), 0);
+  const exactHits = guesses.filter((guess) => guess.pointsEarned === 25).length;
+  const positiveHits = guesses.filter((guess) => (guess.pointsEarned ?? 0) > 0).length;
+  const uniqueUsers = new Set(guesses.map((guess) => guess.userId)).size;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-4">
+          <p className="text-xs text-muted-foreground">Total de palpites</p>
+          <p className="text-2xl font-bold font-display">{totalGuesses}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs text-muted-foreground">Usuários ativos</p>
+          <p className="text-2xl font-bold font-display">{uniqueUsers}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs text-muted-foreground">Palpites fechados</p>
+          <p className="text-2xl font-bold font-display">{closedGuesses.length}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs text-muted-foreground">Pontos somados</p>
+          <p className="text-2xl font-bold font-display">{totalPoints}</p>
+        </Card>
+      </div>
+
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <Badge variant="outline">{exactHits} exatos</Badge>
+          <Badge variant="outline">{positiveHits} com pontos</Badge>
+          <Badge variant="outline">{openGuesses.length} em aberto</Badge>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Participante</TableHead>
+                <TableHead>Partida</TableHead>
+                <TableHead className="text-center">Palpite</TableHead>
+                <TableHead className="text-center">Resultado</TableHead>
+                <TableHead className="text-center">Pontos</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {guesses.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                    Nenhum palpite registrado ainda.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                guesses.map((guess) => {
+                  const isFinished = guess.match.status === "FINISHED";
+                  const points = guess.pointsEarned ?? 0;
+                  const tone =
+                    points === 25
+                      ? "bg-green-600 text-white"
+                      : points > 0
+                        ? "bg-amber-600 text-white"
+                        : "bg-muted text-muted-foreground";
+
+                  return (
+                    <TableRow key={guess.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{guess.user.name}</p>
+                          <p className="text-xs text-muted-foreground">{guess.user.email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">
+                            {guess.match.teamA} vs {guess.match.teamB}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatMatchDate(new Date(guess.match.datetime), "dd MMM")} · {formatMatchTime(new Date(guess.match.datetime))} · {guess.match.groupStage}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center font-medium">
+                        {guess.guessA} × {guess.guessB}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {isFinished ? (
+                          <span className="font-medium">
+                            {guess.match.scoreA} × {guess.match.scoreB}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">Em aberto</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge className={tone}>{isFinished ? `+${points} pts` : "Em aberto"}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={isFinished ? "default" : "secondary"}>
+                          {isFinished ? "Fechado" : "Aberto"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
     </div>
   );
 }
