@@ -61,7 +61,7 @@ import {
   setTopScorerResult,
   setChampionResult,
 } from "@/app/actions/special-bets";
-import { formatMatchDate, formatMatchTime } from "@/lib/timezone";
+import { formatMatchDate, formatMatchTime, formatMatchDateTimeForInput } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -955,9 +955,7 @@ function MatchFormDialog({
   ];
 
   const defaultDatetime = match
-    ? new Date(new Date(match.datetime).getTime() - new Date(match.datetime).getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16)
+    ? formatMatchDateTimeForInput(new Date(match.datetime))
     : "";
 
   return (
@@ -991,7 +989,7 @@ function MatchFormDialog({
               </div>
             </div>
             <div>
-              <Label htmlFor="datetime">Data e Hora</Label>
+              <Label htmlFor="datetime">Data e Hora (horário de São Paulo)</Label>
               <Input
                 id="datetime"
                 name="datetime"
@@ -1207,11 +1205,16 @@ function UsersTab({
 }) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState(users[0]?.id ?? null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(users[0]?.id ?? null);
 
-  const selectedUser = users.find((user) => user.id === selectedUserId) ?? null;
+  const selectedUserIdForView =
+    selectedUserId && users.some((user) => user.id === selectedUserId)
+      ? selectedUserId
+      : users[0]?.id ?? null;
+
+  const selectedUser = users.find((user) => user.id === selectedUserIdForView) ?? null;
   const selectedUserGuesses = guesses
-    .filter((guess) => guess.userId === selectedUserId)
+    .filter((guess) => guess.userId === selectedUserIdForView)
     .sort((a, b) => new Date(b.match.datetime).getTime() - new Date(a.match.datetime).getTime());
 
   const handleCreate = (formData: FormData) => {
@@ -1276,7 +1279,7 @@ function UsersTab({
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {users.map((user) => {
-            const isSelected = user.id === selectedUserId;
+            const isSelected = user.id === selectedUserIdForView;
             const userGuessesCount = guesses.filter((guess) => guess.userId === user.id).length;
 
             return (

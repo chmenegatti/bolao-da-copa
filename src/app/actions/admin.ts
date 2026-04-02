@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/auth-helpers";
 import { calculatePoints } from "@/lib/scoring";
 import { recalculateUsersTotalPoints } from "@/lib/points-recalculation";
 import { resetCompetitionData } from "@/lib/reset-competition-data";
+import { parseMatchDateTimeInput } from "@/lib/timezone";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
 import { promisify } from "node:util";
@@ -123,7 +124,7 @@ export async function createMatch(formData: FormData) {
     return { error: `Nome dos times deve ter no máximo ${MAX_TEAM_NAME_LENGTH} caracteres.` };
   }
 
-  const parsedDatetime = new Date(datetime);
+  const parsedDatetime = parseMatchDateTimeInput(datetime);
   if (Number.isNaN(parsedDatetime.getTime())) {
     return { error: "Data/hora inválida." };
   }
@@ -158,7 +159,7 @@ export async function updateMatch(matchId: string, formData: FormData) {
     return { error: `Nome dos times deve ter no máximo ${MAX_TEAM_NAME_LENGTH} caracteres.` };
   }
 
-  const parsedDatetime = new Date(datetime);
+  const parsedDatetime = parseMatchDateTimeInput(datetime);
   if (Number.isNaN(parsedDatetime.getTime())) {
     return { error: "Data/hora inválida." };
   }

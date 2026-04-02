@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { toZonedTime } from "date-fns-tz";
+import { fromZonedTime, formatInTimeZone, toZonedTime } from "date-fns-tz";
 
 const TIMEZONE = "America/Sao_Paulo";
 const TEN_MINUTES_MS = 10 * 60 * 1000;
@@ -30,4 +30,18 @@ export function formatMatchDate(date: Date, fmt: string = "dd MMM"): string {
 export function formatMatchTime(date: Date): string {
   const zonedDate = toZonedTime(new Date(date), TIMEZONE);
   return format(zonedDate, "HH:mm", { locale: ptBR });
+}
+
+/**
+ * Formata um Date para preenchimento de input datetime-local em horário de São Paulo.
+ */
+export function formatMatchDateTimeForInput(date: Date): string {
+  return formatInTimeZone(new Date(date), TIMEZONE, "yyyy-MM-dd'T'HH:mm");
+}
+
+/**
+ * Converte o valor de input datetime-local em horário de São Paulo para UTC.
+ */
+export function parseMatchDateTimeInput(value: string): Date {
+  return fromZonedTime(value, TIMEZONE);
 }

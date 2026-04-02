@@ -45,19 +45,25 @@ export default function AppHeader({
   ];
 
   return (
-    <header className="sticky top-0 z-50 gradient-hero text-white shadow-lg">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-linear-to-r from-emerald-950 via-emerald-900 to-teal-900 text-white shadow-[0_12px_30px_-18px_rgba(0,0,0,0.65)] backdrop-blur supports-backdrop-filter:bg-emerald-950/90">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-14">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Star className="h-5 w-5 text-gold" />
-            <span className="font-display text-lg font-bold tracking-tight hidden sm:block">
-              Palpite Perfeito
-            </span>
+        <div className="flex items-center justify-between gap-3 h-16">
+          <Link href="/" className="flex items-center gap-3 shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
+              <Star className="h-5 w-5 text-gold" />
+            </div>
+            <div className="hidden sm:block leading-tight">
+              <span className="font-display text-lg font-bold tracking-tight block">
+                Palpite Perfeito
+              </span>
+              <span className="text-[11px] text-white/60 uppercase tracking-[0.18em]">
+                Dashboard · Jogos · Rankings
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Nav — ícone+label em xl, só ícone em md */}
-          <nav className="hidden md:flex items-center gap-0.5">
+          <nav className="hidden md:flex items-center gap-1 rounded-2xl bg-white/8 p-1 ring-1 ring-white/10">
             {links.map((link) => {
               const Icon = link.icon;
               const active = pathname === link.href;
@@ -66,7 +72,7 @@ export default function AppHeader({
                   key={link.href}
                   href={link.href}
                   title={link.label}
-                  className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${active
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${active
                     ? "bg-white/20 text-white"
                     : "text-white/70 hover:text-white hover:bg-white/10"
                     }`}
@@ -79,21 +85,27 @@ export default function AppHeader({
           </nav>
 
           {/* User info + logout */}
-          <div className="hidden md:flex items-center gap-2 shrink-0">
+          <div className="hidden md:flex items-center gap-2 shrink-0 rounded-2xl bg-white/10 px-3 py-2 ring-1 ring-white/10">
             <div className="text-right leading-none">
               <p className="text-sm font-medium truncate max-w-30">{userName}</p>
-              <div className="flex items-center justify-end gap-1 mt-0.5">
-                <Trophy className="h-3 w-3 text-gold" />
-                <span className="text-xs text-gold font-semibold">{totalPoints} pts</span>
+              <div className="flex items-center justify-end gap-2 mt-0.5">
+                {isAdmin && (
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.16em] text-white/70">
+                    Admin
+                  </span>
+                )}
+                <div className="flex items-center gap-1">
+                  <Trophy className="h-3 w-3 text-gold" />
+                  <span className="text-xs text-gold font-semibold">{totalPoints} pts</span>
+                </div>
               </div>
             </div>
-            <Separator orientation="vertical" className="h-7 bg-white/20" />
             <Button
               variant="ghost"
               size="icon"
               onClick={() => signOut({ callbackUrl: "/auth" })}
               title="Sair"
-              className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8"
+              className="text-white/70 hover:text-white hover:bg-white/10 h-9 w-9 rounded-full"
             >
               <LogOut className="h-4 w-4" />
             </Button>

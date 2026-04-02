@@ -24,7 +24,7 @@ export default async function DashboardPage() {
 
   const closedGuesses = guesses
     .filter((guess) => guess.match.status === "FINISHED")
-    .sort((a, b) => b.match.datetime.getTime() - a.match.datetime.getTime())
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 3);
 
   const openMatches = matches
