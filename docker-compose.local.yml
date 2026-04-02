@@ -1,0 +1,34 @@
+name: palpite-perfeito-local
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+      args:
+        DATABASE_URL: file:./prisma/dev.db
+    container_name: palpite-local
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: file:./prisma/dev.db
+      AUTH_SECRET: ${AUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+    command: sh -lc "npx prisma migrate deploy && npm run start"
+    ports:
+      - "${LOCAL_PORT:-3000}:3000"
+    volumes:
+      - app-data:/app/prisma
+    healthcheck:
+      test:
+        ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+
+volumes:
+  app-data:

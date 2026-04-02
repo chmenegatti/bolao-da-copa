@@ -191,6 +191,22 @@ NEXTAUTH_URL=https://seu-dominio
 
 O Cloudflare Tunnel deve apontar para o proxy local, não para o app diretamente.
 
+### 6.1 Rodar localmente em container
+
+Se a ideia for apenas subir na sua máquina pessoal, use este fluxo mais simples:
+
+```bash
+AUTH_SECRET=um_secret_forte ./scripts/run-local-container.sh
+```
+
+Ou diretamente:
+
+```bash
+AUTH_SECRET=um_secret_forte docker compose -f docker-compose.local.yml up -d --build
+```
+
+Esse compose sobe o container `app`, aplica `prisma migrate deploy` e publica a aplicação em `http://localhost:3000` por padrão. Se a porta já estiver ocupada na máquina em que você estiver, defina `LOCAL_PORT` antes de subir.
+
 ### 7. Deploy blue-green
 
 Depois de publicar a imagem no registry, rode no servidor:
