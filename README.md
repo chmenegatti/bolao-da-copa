@@ -66,6 +66,15 @@
 | 🥇 **Definir campeão** | Define campeão/vice/placar da final e recalcula |
 | ♻️ **Resetar base** | Limpa palpites, gols, apostas especiais, resultados e pontos, preservando as partidas |
 
+### Deploy sem indisponibilidade
+
+O projeto já está preparado para rodar em Docker com `output: 'standalone'` e deploy blue-green.
+
+- A aplicação passa a subir dentro de um container Node minimalista.
+- Um proxy Nginx fica na frente da aplicação e recebe o tráfego do Cloudflare Tunnel.
+- O deploy sobe o slot novo, roda as migrations, espera o healthcheck e só depois troca o upstream.
+- Isso evita a janela clássica de indisponibilidade de `npm start` + restart manual.
+
 ---
 
 ## 🛠️ Stack técnica
@@ -164,6 +173,35 @@ npm run dev
 npm run build
 npm run start
 ```
+
+### 6. Rodar com Docker
+
+```bash
+docker compose -f docker-compose.prod.yml up -d proxy app-blue
+```
+
+Antes disso, defina pelo menos:
+
+```env
+APP_IMAGE=ghcr.io/seu-usuario/palpite-perfeito-next:latest
+DATABASE_URL=file:/data/palpite.db
+AUTH_SECRET=um_secret_forte
+NEXTAUTH_URL=https://seu-dominio
+```
+
+O Cloudflare Tunnel deve apontar para o proxy local, não para o app diretamente.
+
+### 7. Deploy blue-green
+
+Depois de publicar a imagem no registry, rode no servidor:
+
+```bash
+APP_IMAGE=ghcr.io/seu-usuario/palpite-perfeito-next:latest \
+AUTH_SECRET=seu_secret \
+./scripts/deploy-blue-green.sh
+```
+
+O script alterna entre `app-blue` e `app-green`, aplica migrations, valida o healthcheck e troca o upstream do proxy sem derrubar o site.
 
 ---
 

@@ -7,6 +7,7 @@ const envAllowedOrigins = process.env.NEXT_ALLOWED_DEV_ORIGINS?.split(",")
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  output: "standalone",
   allowedDevOrigins: envAllowedOrigins?.length
     ? envAllowedOrigins
     : [
