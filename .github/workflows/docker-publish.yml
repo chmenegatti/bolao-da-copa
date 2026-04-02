@@ -50,7 +50,6 @@ jobs:
     needs: build-and-push
     runs-on: [self-hosted, linux]
     env:
-      APP_IMAGE: ${{ vars.APP_IMAGE }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
     steps:
@@ -61,4 +60,6 @@ jobs:
         run: docker compose -f docker-compose.prod.yml up -d proxy
 
       - name: Executar deploy blue-green
-        run: ./scripts/deploy-blue-green.sh
+        run: |
+          APP_IMAGE=ghcr.io/${{ github.repository }}:latest \
+          ./scripts/deploy-blue-green.sh
