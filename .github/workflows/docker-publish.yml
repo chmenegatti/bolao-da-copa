@@ -50,6 +50,7 @@ jobs:
     needs: build-and-push
     runs-on: [self-hosted, linux]
     env:
+      DATABASE_URL: file:/data/palpite.db
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
     steps:

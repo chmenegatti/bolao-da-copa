@@ -211,7 +211,6 @@ Esse compose sobe o container `app`, aplica `prisma migrate deploy` e publica a 
 
 Depois de publicar a imagem no registry, o workflow de deploy usa as `GitHub Variables` e `GitHub Secrets` do repositório:
 
-- `APP_IMAGE` em Variables, com algo como `ghcr.io/seu-usuario/palpite-da-copa:latest`
 - `NEXTAUTH_URL` em Variables, com a URL pública do seu ambiente
 - `AUTH_SECRET` em Secrets, com o segredo do NextAuth
 

@@ -13,13 +13,6 @@ fi
 
 cd "$PROJECT_ROOT"
 
-if [[ -f "$PROJECT_ROOT/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "$PROJECT_ROOT/.env"
-  set +a
-fi
-
 if [[ -z "${AUTH_SECRET:-}" ]]; then
   echo "AUTH_SECRET precisa estar definido no ambiente de deploy" >&2
   exit 1
@@ -43,7 +36,7 @@ echo "Slot de deploy: $next_slot"
 
 docker compose -f "$COMPOSE_FILE" pull "app-$next_slot"
 
-docker compose -f "$COMPOSE_FILE" run --rm --no-deps --entrypoint sh "app-$next_slot" -lc "./node_modules/.bin/prisma migrate deploy --schema ./prisma/schema.prisma"
+docker compose -f "$COMPOSE_FILE" run --rm --no-deps --user root --entrypoint sh "app-$next_slot" -lc "mkdir -p /data && chown -R node:node /data && ./node_modules/.bin/prisma migrate deploy --schema ./prisma/schema.prisma"
 
 docker compose -f "$COMPOSE_FILE" up -d --no-deps "app-$next_slot"
 
