@@ -156,7 +156,7 @@ export default function HelpPage() {
               <ExampleCard
                 label="Brasil 2 × 1 Argentina"
                 real="2 × 1"
-                guess="3 × 0"
+                guess="3 × 1"
                 points={18}
                 description="Vencedor correto e um dos placares exatos. 18 pontos."
                 variant="silver"

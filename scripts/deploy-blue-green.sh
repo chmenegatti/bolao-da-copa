@@ -18,6 +18,15 @@ fi
 
 cd "$PROJECT_ROOT"
 
+if [[ -f "$PROJECT_ROOT/.env" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "$PROJECT_ROOT/.env"
+  set +a
+fi
+
+docker compose -f "$COMPOSE_FILE" up -d proxy
+
 current_slot="blue"
 if [[ -f "$UPSTREAM_FILE" ]] && grep -q "app-green:3000" "$UPSTREAM_FILE"; then
   current_slot="green"
