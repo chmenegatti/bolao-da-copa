@@ -1,5 +1,9 @@
 FROM node:20-bookworm-slim AS base
 
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends openssl \
+	&& rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 FROM base AS deps
@@ -29,6 +33,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 
 COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules ./node_modules
 
 USER node
 

@@ -43,7 +43,7 @@ echo "Slot de deploy: $next_slot"
 
 docker compose -f "$COMPOSE_FILE" pull "app-$next_slot"
 
-docker compose -f "$COMPOSE_FILE" run --rm --no-deps --entrypoint sh "app-$next_slot" -lc "npx prisma migrate deploy"
+docker compose -f "$COMPOSE_FILE" run --rm --no-deps --entrypoint sh "app-$next_slot" -lc "./node_modules/.bin/prisma migrate deploy --schema ./prisma/schema.prisma"
 
 docker compose -f "$COMPOSE_FILE" up -d --no-deps "app-$next_slot"
 
