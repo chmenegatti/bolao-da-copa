@@ -18,6 +18,11 @@ if [[ -z "${AUTH_SECRET:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${ADMIN_PASS:-}" ]]; then
+  echo "ADMIN_PASS precisa estar definido no ambiente de deploy" >&2
+  exit 1
+fi
+
 docker compose -f "$COMPOSE_FILE" up -d proxy
 
 current_slot="blue"
@@ -56,6 +61,8 @@ if [[ "$health_status" != "healthy" ]]; then
   docker logs "$container_id" || true
   exit 1
 fi
+
+docker compose -f "$COMPOSE_FILE" exec -T "app-$next_slot" sh -lc "ADMIN_PASS=\"$ADMIN_PASS\" npm run -s prisma:seed:admin"
 
 cat > "$UPSTREAM_FILE" <<EOF
 server app-$next_slot:3000;

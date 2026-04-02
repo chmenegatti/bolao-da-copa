@@ -54,7 +54,6 @@ import {
   updateUser,
   deleteUser,
   resetTournamentData,
-  seedAdminOnlyData,
   seedBrasileiraoTestData,
   seedWorldCupData,
 } from "@/app/actions/admin";
@@ -201,7 +200,7 @@ export default function AdminPanel({
           <div className="space-y-1">
             <p className="font-semibold text-primary">Seeds rápidos</p>
             <p className="text-sm text-muted-foreground">
-              Recria a base da Copa, recria a base de teste do Brasileirão ou atualiza apenas o admin.
+              Recria a base da Copa ou recria a base de teste do Brasileirão.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -238,23 +237,6 @@ export default function AdminPanel({
               }}
             >
               Seed Teste
-            </Button>
-            <Button
-              variant="outline"
-              disabled={isPending}
-              onClick={() => {
-                if (!confirm("Isso vai atualizar apenas o usuário admin. Continuar?")) return;
-                startTransition(async () => {
-                  const result = await seedAdminOnlyData();
-                  if (result?.error) {
-                    toast.error(result.error);
-                  } else {
-                    toast.success("Usuário admin atualizado.");
-                  }
-                });
-              }}
-            >
-              Seed Admin
             </Button>
           </div>
         </CardContent>

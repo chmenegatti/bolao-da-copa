@@ -322,7 +322,7 @@ export async function resetTournamentData() {
   return { success: true };
 }
 
-type SeedMode = "admin-only" | "worldcup" | "brasileirao-test";
+type SeedMode = "worldcup" | "brasileirao-test";
 
 async function runSeed(mode: SeedMode) {
   await requireAdmin();
@@ -359,8 +359,4 @@ export async function seedWorldCupData() {
 
 export async function seedBrasileiraoTestData() {
   return runSeed("brasileirao-test");
-}
-
-export async function seedAdminOnlyData() {
-  return runSeed("admin-only");
 }

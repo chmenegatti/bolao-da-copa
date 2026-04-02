@@ -225,13 +225,12 @@ AUTH_SECRET=seu_secret \
 
 O script alterna entre `app-blue` e `app-green`, aplica migrations, valida o healthcheck e troca o upstream do proxy sem derrubar o site.
 
-No painel admin, existem três botões de seed:
+O painel admin tem botões de seed para a Copa e para a base de teste do Brasileirão:
 
 - `Seed Copa` recria a base da Copa do Mundo.
 - `Seed Teste` recria a base de teste do Brasileirão.
-- `Seed Admin` recria apenas o usuário admin.
 
-A senha do admin vem de `ADMIN_PASS`.
+O usuário admin é recriado automaticamente no deploy com a senha vinda de `ADMIN_PASS`.
 
 ---
 
