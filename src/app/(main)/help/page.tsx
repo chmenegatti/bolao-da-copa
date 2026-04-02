@@ -170,8 +170,8 @@ export default function HelpPage() {
                 variant="bronze"
               />
               <ExampleCard
-                label="Brasil 2 × 0 Argentina"
-                real="2 × 0"
+                label="Brasil 2 × 2 Argentina"
+                real="2 × 2"
                 guess="1 × 1"
                 points={10}
                 description="Acertou que empatou, mas errou o placar."
