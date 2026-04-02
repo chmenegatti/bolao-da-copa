@@ -64,7 +64,7 @@ export default function AuthPage() {
                 <div>
                   <p className="font-semibold">25 pontos - Placar Exato</p>
                   <p className="text-sm text-white/60">
-                    Acertou o placar exato da partida
+                    Acertou o placar completo da partida
                   </p>
                 </div>
               </div>
@@ -73,11 +73,9 @@ export default function AuthPage() {
                   <Trophy className="h-5 w-5 text-gold" />
                 </div>
                 <div>
-                  <p className="font-semibold">
-                    18 pontos - Vencedor + Saldo
-                  </p>
+                  <p className="font-semibold">18 pontos - Resultado + Saldo</p>
                   <p className="text-sm text-white/60">
-                    Acertou quem venceu e o saldo de gols
+                    Acertou quem venceu ou empatou e a diferença de gols
                   </p>
                 </div>
               </div>
@@ -86,10 +84,8 @@ export default function AuthPage() {
                   <CheckCircle2 className="h-5 w-5 text-white/60" />
                 </div>
                 <div>
-                  <p className="font-semibold">10 pontos - Vencedor</p>
-                  <p className="text-sm text-white/60">
-                    Acertou apenas quem venceu ou empate
-                  </p>
+                  <p className="font-semibold">10 pontos - Apenas Resultado</p>
+                  <p className="text-sm text-white/60">Acertou só quem venceu ou se foi empate</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -99,7 +95,7 @@ export default function AuthPage() {
                 <div>
                   <p className="font-semibold">5 pontos - Gols de um time</p>
                   <p className="text-sm text-white/60">
-                    Acertou os gols de pelo menos uma equipe (incluindo zero)
+                    Acertou os gols de pelo menos uma equipe, incluindo zero
                   </p>
                 </div>
               </div>

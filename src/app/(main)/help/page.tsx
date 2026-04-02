@@ -106,32 +106,32 @@ export default function HelpPage() {
         </CardHeader>
         <CardContent className="space-y-5">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Para cada partida, você escolhe o placar que acha que vai acontecer. Os pontos
-            dependem de o quanto você acertou:
+            Para cada partida, você escolhe o placar que acha que vai acontecer. A pontuação
+            segue esta ordem:
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="text-center p-4 rounded-lg border-2 border-yellow-300 bg-yellow-50">
               <PointsBadge points={25} variant="gold" />
               <p className="font-bold mt-2 text-sm">Placar Exato</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou os dois placares</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou o placar completo da partida</p>
             </div>
             <div className="text-center p-4 rounded-lg border-2 border-slate-300 bg-slate-50">
               <PointsBadge points={18} variant="silver" />
-              <p className="font-bold mt-2 text-sm">Saldo + Vencedor</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou quem ganhou e por quantos gols</p>
+              <p className="font-bold mt-2 text-sm">Resultado + Saldo</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou quem venceu ou empatou e a diferença de gols</p>
             </div>
             <div className="text-center p-4 rounded-lg border-2 border-orange-300 bg-orange-50">
               <PointsBadge points={10} variant="bronze" />
-              <p className="font-bold mt-2 text-sm">Apenas Vencedor</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou só quem ganhou (ou empate)</p>
+              <p className="font-bold mt-2 text-sm">Apenas Resultado</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou só quem ganhou ou se foi empate</p>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
             <div className="text-center p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
               <PointsBadge points={5} variant="default" />
               <p className="font-bold mt-2 text-sm">Gols de um time</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou os gols de pelo menos uma equipe (incluindo zero)</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou os gols de pelo menos uma equipe, incluindo zero</p>
             </div>
           </div>
 
@@ -153,7 +153,7 @@ export default function HelpPage() {
                 real="2 × 1"
                 guess="3 × 2"
                 points={18}
-                description="Brasil ganhou por 1 gol de diferença nos dois casos — saldo e vencedor corretos."
+                description="Mesmo vencedor/empate e mesma diferença de gols. 18 pontos."
                 variant="silver"
               />
               <ExampleCard
@@ -161,7 +161,7 @@ export default function HelpPage() {
                 real="2 × 1"
                 guess="1 × 0"
                 points={10}
-                description="Brasil venceu nos dois casos, mas o saldo foi diferente (1 vs 2). Apenas o vencedor correto."
+                description="Acertou só quem venceu. A diferença de gols ficou errada."
                 variant="bronze"
               />
               <ExampleCard
@@ -169,7 +169,7 @@ export default function HelpPage() {
                 real="2 × 0"
                 guess="1 × 0"
                 points={10}
-                description="Brasil venceu nos dois casos, mas o saldo foi diferente (2 vs 1). Apenas o vencedor correto."
+                description="Acertou só quem venceu. A diferença de gols ficou errada."
                 variant="bronze"
               />
               <ExampleCard
@@ -177,7 +177,7 @@ export default function HelpPage() {
                 real="0 × 0"
                 guess="1 × 0"
                 points={5}
-                description="Acertou os gols da Rep. Tcheca (zero), mas errou vencedor/empate."
+                description="Acertou os gols de uma equipe, mas errou o resultado final."
                 variant="default"
               />
               <ExampleCard
@@ -373,15 +373,15 @@ export default function HelpPage() {
                   <td className="py-2 text-right"><PointsBadge points={25} variant="gold" /></td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4">Vencedor + diferença de gols corretos</td>
+                  <td className="py-2 pr-4">Resultado + diferença de gols corretos</td>
                   <td className="py-2 text-right"><PointsBadge points={18} variant="silver" /></td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4">Apenas vencedor (ou empate) correto</td>
+                  <td className="py-2 pr-4">Apenas o vencedor ou empate correto</td>
                   <td className="py-2 text-right"><PointsBadge points={10} variant="bronze" /></td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4">Acertou os gols de um dos times (incluindo zero)</td>
+                  <td className="py-2 pr-4">Acertou os gols de um dos times, incluindo zero</td>
                   <td className="py-2 text-right"><PointsBadge points={5} variant="default" /></td>
                 </tr>
                 <tr>
