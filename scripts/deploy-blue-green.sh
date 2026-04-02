@@ -11,11 +11,6 @@ if [[ -z "${APP_IMAGE:-}" ]]; then
   exit 1
 fi
 
-if [[ -z "${AUTH_SECRET:-}" ]]; then
-  echo "AUTH_SECRET precisa estar definido no ambiente de deploy" >&2
-  exit 1
-fi
-
 cd "$PROJECT_ROOT"
 
 if [[ -f "$PROJECT_ROOT/.env" ]]; then
@@ -23,6 +18,11 @@ if [[ -f "$PROJECT_ROOT/.env" ]]; then
   # shellcheck disable=SC1091
   source "$PROJECT_ROOT/.env"
   set +a
+fi
+
+if [[ -z "${AUTH_SECRET:-}" ]]; then
+  echo "AUTH_SECRET precisa estar definido no ambiente de deploy" >&2
+  exit 1
 fi
 
 docker compose -f "$COMPOSE_FILE" up -d proxy
