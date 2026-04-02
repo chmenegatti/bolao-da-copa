@@ -73,9 +73,9 @@ export default function AuthPage() {
                   <Trophy className="h-5 w-5 text-gold" />
                 </div>
                 <div>
-                  <p className="font-semibold">18 pontos - Resultado + Saldo</p>
+                  <p className="font-semibold">18 pontos - Vencedor + Gols de 1 Time</p>
                   <p className="text-sm text-white/60">
-                    Acertou quem venceu ou empatou e a diferença de gols
+                    Acertou quem venceu e um dos placares exatamente
                   </p>
                 </div>
               </div>
@@ -84,8 +84,8 @@ export default function AuthPage() {
                   <CheckCircle2 className="h-5 w-5 text-white/60" />
                 </div>
                 <div>
-                  <p className="font-semibold">10 pontos - Apenas Resultado</p>
-                  <p className="text-sm text-white/60">Acertou só quem venceu ou se foi empate</p>
+                  <p className="font-semibold">15 pontos - Vencedor Seco</p>
+                  <p className="text-sm text-white/60">Acertou só quem venceu, mas errou os placares</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -93,9 +93,18 @@ export default function AuthPage() {
                   <CheckCircle2 className="h-5 w-5 text-white/60" />
                 </div>
                 <div>
-                  <p className="font-semibold">5 pontos - Gols de um time</p>
+                  <p className="font-semibold">10 pontos - Empate Não Exato</p>
+                  <p className="text-sm text-white/60">Acertou que empatou, mas errou o número de gols</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-5 w-5 text-white/60" />
+                </div>
+                <div>
+                  <p className="font-semibold">5 pontos - Gols Isolados</p>
                   <p className="text-sm text-white/60">
-                    Acertou os gols de pelo menos uma equipe, incluindo zero
+                    Errou o resultado final, mas acertou os gols de um time
                   </p>
                 </div>
               </div>

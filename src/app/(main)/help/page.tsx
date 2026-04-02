@@ -110,7 +110,7 @@ export default function HelpPage() {
             segue esta ordem:
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
             <div className="text-center p-4 rounded-lg border-2 border-yellow-300 bg-yellow-50">
               <PointsBadge points={25} variant="gold" />
               <p className="font-bold mt-2 text-sm">Placar Exato</p>
@@ -118,20 +118,25 @@ export default function HelpPage() {
             </div>
             <div className="text-center p-4 rounded-lg border-2 border-slate-300 bg-slate-50">
               <PointsBadge points={18} variant="silver" />
-              <p className="font-bold mt-2 text-sm">Resultado + Saldo</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou quem venceu ou empatou e a diferença de gols</p>
+              <p className="font-bold mt-2 text-sm">Vencedor + Gols de 1 Time</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou quem venceu e um dos placares exatamente</p>
             </div>
             <div className="text-center p-4 rounded-lg border-2 border-orange-300 bg-orange-50">
-              <PointsBadge points={10} variant="bronze" />
-              <p className="font-bold mt-2 text-sm">Apenas Resultado</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou só quem ganhou ou se foi empate</p>
+              <PointsBadge points={15} variant="bronze" />
+              <p className="font-bold mt-2 text-sm">Vencedor Seco</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou só quem venceu, mas errou os placares</p>
+            </div>
+            <div className="text-center p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
+              <PointsBadge points={10} variant="default" />
+              <p className="font-bold mt-2 text-sm">Empate Não Exato</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou que empatou, mas errou o número de gols</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
-            <div className="text-center p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
+          <div className="grid grid-cols-1 gap-3">
+            <div className="text-center p-4 rounded-lg border-2 border-emerald-300 bg-emerald-50">
               <PointsBadge points={5} variant="default" />
               <p className="font-bold mt-2 text-sm">Gols de um time</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou os gols de pelo menos uma equipe, incluindo zero</p>
+              <p className="text-xs text-muted-foreground mt-1">Errou o resultado final, mas acertou os gols de um time</p>
             </div>
           </div>
 
@@ -151,33 +156,33 @@ export default function HelpPage() {
               <ExampleCard
                 label="Brasil 2 × 1 Argentina"
                 real="2 × 1"
-                guess="3 × 2"
+                guess="3 × 0"
                 points={18}
-                description="Mesmo vencedor/empate e mesma diferença de gols. 18 pontos."
+                description="Vencedor correto e um dos placares exatos. 18 pontos."
                 variant="silver"
               />
               <ExampleCard
                 label="Brasil 2 × 1 Argentina"
                 real="2 × 1"
-                guess="1 × 0"
-                points={10}
-                description="Acertou só quem venceu. A diferença de gols ficou errada."
+                guess="4 × 2"
+                points={15}
+                description="Acertou só quem venceu, mas errou os placares."
                 variant="bronze"
               />
               <ExampleCard
                 label="Brasil 2 × 0 Argentina"
                 real="2 × 0"
-                guess="1 × 0"
+                guess="1 × 1"
                 points={10}
-                description="Acertou só quem venceu. A diferença de gols ficou errada."
-                variant="bronze"
+                description="Acertou que empatou, mas errou o placar."
+                variant="default"
               />
               <ExampleCard
                 label="Coreia do Sul 0 × 0 Rep. Tcheca"
                 real="0 × 0"
-                guess="1 × 0"
+                guess="0 × 1"
                 points={5}
-                description="Acertou os gols de uma equipe, mas errou o resultado final."
+                description="Errou o resultado final, mas acertou os gols de um time."
                 variant="default"
               />
               <ExampleCard
@@ -373,15 +378,19 @@ export default function HelpPage() {
                   <td className="py-2 text-right"><PointsBadge points={25} variant="gold" /></td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4">Resultado + diferença de gols corretos</td>
+                  <td className="py-2 pr-4">Vencedor + gols de 1 time corretos</td>
                   <td className="py-2 text-right"><PointsBadge points={18} variant="silver" /></td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4">Apenas o vencedor ou empate correto</td>
-                  <td className="py-2 text-right"><PointsBadge points={10} variant="bronze" /></td>
+                  <td className="py-2 pr-4">Apenas vencedor, sem placares exatos</td>
+                  <td className="py-2 text-right"><PointsBadge points={15} variant="bronze" /></td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4">Acertou os gols de um dos times, incluindo zero</td>
+                  <td className="py-2 pr-4">Empate não exato</td>
+                  <td className="py-2 text-right"><PointsBadge points={10} variant="default" /></td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4">Gols isolados</td>
                   <td className="py-2 text-right"><PointsBadge points={5} variant="default" /></td>
                 </tr>
                 <tr>

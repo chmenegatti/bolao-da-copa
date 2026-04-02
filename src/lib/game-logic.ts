@@ -19,9 +19,10 @@ export function canUserPlaceGuess(matchDate: Date): boolean {
  *
  * Regras:
  *  25 pts — Placar exato                   (ex: 2×1 → 2×1)
- *  18 pts — Vencedor/empate + saldo iguais (ex: 3×1 → 2×0 — ambos vitória com +2)
- *  10 pts — Apenas vencedor ou empate      (ex: 1×0 → 3×0)
- *   5 pts — Acertou gols de um time         (ex: 1×0 → 0×0, acertou o zero)
+ *  18 pts — Vencedor + gols de um time     (ex: 3×1 → 3×0 ou 2×1)
+ *  15 pts — Vencedor seco                  (ex: 3×1 → 1×0 ou 4×2)
+ *  10 pts — Empate não exato               (ex: 2×2 → 1×1)
+ *   5 pts — Gols isolados                  (ex: 3×1 → 3×4 ou 0×1)
  *   0 pts — Erro total
  */
 export function calculateGuessPoints(
@@ -30,26 +31,23 @@ export function calculateGuessPoints(
   realA: number,
   realB: number
 ): number {
-  // Placar exato
-  if (guessA === realA && guessB === realB) return 25;
-
-  const guessDiff = guessA - guessB;
-  const realDiff = realA - realB;
-
   const winner = (a: number, b: number) =>
     a > b ? "a" : a < b ? "b" : "draw";
 
   const guessWinner = winner(guessA, guessB);
   const realWinner = winner(realA, realB);
+  const hasExactTeamScore = guessA === realA || guessB === realB;
 
-  // Vencedor correto + mesmo saldo de gols
-  if (guessWinner === realWinner && guessDiff === realDiff) return 18;
+  // Placar exato
+  if (guessA === realA && guessB === realB) return 25;
 
-  // Apenas o vencedor (ou empate)
-  if (guessWinner === realWinner) return 10;
+  if (guessWinner === realWinner) {
+    if (guessWinner === "draw") return 10;
+    if (hasExactTeamScore) return 18;
+    return 15;
+  }
 
-  // Acertou o número de gols de pelo menos um dos times (inclui zero)
-  if (guessA === realA || guessB === realB) return 5;
+  if (hasExactTeamScore) return 5;
 
   return 0;
 }
