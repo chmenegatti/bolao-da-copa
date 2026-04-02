@@ -20,8 +20,6 @@ services:
     command: sh -lc "npx prisma migrate deploy && npm run start"
     ports:
       - "${LOCAL_PORT:-3000}:3000"
-    volumes:
-      - app-data:/app/prisma
     healthcheck:
       test:
         ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))\""]
@@ -29,6 +27,3 @@ services:
       timeout: 3s
       retries: 12
       start_period: 20s
-
-volumes:
-  app-data:
