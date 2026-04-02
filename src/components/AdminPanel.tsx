@@ -584,7 +584,7 @@ function GoalDialog({
               <Label htmlFor="goal-team" className="block">Time</Label>
               <Select
                 value={team}
-                onValueChange={(value) => setTeam(value)}
+                onValueChange={(value) => setTeam(value === "B" ? "B" : "A")}
               >
                 <SelectTrigger id="goal-team">
                   <SelectValue placeholder="Selecione o time" />
