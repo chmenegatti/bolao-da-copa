@@ -44,11 +44,34 @@ export default function BetDialog({
     }
     if (!game) return;
 
+    console.log("[BetDialog] Enviando palpite", {
+      matchId: game.id,
+      teamA: game.teamA,
+      teamB: game.teamB,
+      guessA: a,
+      guessB: b,
+    });
+
     startTransition(async () => {
       const result = await saveGuess(game.id, a, b);
       if (result?.error) {
+        console.error("[BetDialog] Erro ao salvar palpite", {
+          matchId: game.id,
+          teamA: game.teamA,
+          teamB: game.teamB,
+          guessA: a,
+          guessB: b,
+          error: result.error,
+        });
         toast.error(result.error);
       } else {
+        console.log("[BetDialog] Palpite salvo com sucesso", {
+          matchId: game.id,
+          teamA: game.teamA,
+          teamB: game.teamB,
+          guessA: a,
+          guessB: b,
+        });
         toast.success("Palpite salvo com sucesso!");
         onOpenChange(false);
       }
