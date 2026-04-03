@@ -1607,13 +1607,13 @@ function UserFormDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-xl lg:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="font-display">{title}</DialogTitle>
         </DialogHeader>
         <form action={onSubmit}>
-          <div className="space-y-4 py-4">
-            <div>
+          <div className="grid gap-4 py-4 sm:grid-cols-2">
+            <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
               <Input
                 id="name"
@@ -1623,7 +1623,7 @@ function UserFormDialog({
                 required
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -1634,7 +1634,7 @@ function UserFormDialog({
                 required
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="password">
                 Senha{!requirePassword && " (deixe em branco para manter)"}
               </Label>
@@ -1647,13 +1647,13 @@ function UserFormDialog({
                 minLength={requirePassword ? 6 : undefined}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="role">Papel</Label>
               <select
                 id="role"
                 name="role"
                 defaultValue={user?.role ?? "USER"}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="USER">Usuário</option>
                 <option value="ADMIN">Administrador</option>
