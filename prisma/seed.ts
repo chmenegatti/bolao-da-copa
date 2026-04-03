@@ -55,12 +55,16 @@ async function seedAdminUser(adminPasswordValue: string) {
       name: "Administrador",
       password: hashedPassword,
       role: "ADMIN",
+      paymentConfirmed: true,
+      paymentConfirmedAt: new Date(),
     },
     create: {
       name: "Administrador",
       email: "admin@bolao.com",
       password: hashedPassword,
       role: "ADMIN",
+      paymentConfirmed: true,
+      paymentConfirmedAt: new Date(),
     },
   });
   console.log("Admin criado:", admin.email);

@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { getRequiredUser } from "@/lib/auth-helpers";
 import GamesList from "@/components/GamesList";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { AlertCircle } from "lucide-react";
+import { PAYMENT_PENDING_MESSAGE } from "@/lib/payment";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +47,24 @@ export default async function GamesPage() {
           Faça seus palpites antes do início de cada partida
         </p>
       </div>
-      <GamesList matches={serializedMatches} guesses={serializedGuesses} />
+      {!user.paymentConfirmed && (
+        <Card className="mb-6 border-amber-500/30 bg-amber-500/10 p-4">
+          <div className="flex items-start gap-3">
+            <Badge className="mt-0.5 bg-amber-600 text-white">
+              <AlertCircle className="h-3 w-3" />
+              Pagamento pendente
+            </Badge>
+            <p className="text-sm text-amber-950 dark:text-amber-200">
+              {PAYMENT_PENDING_MESSAGE}
+            </p>
+          </div>
+        </Card>
+      )}
+      <GamesList
+        matches={serializedMatches}
+        guesses={serializedGuesses}
+        canPlaceBets={user.paymentConfirmed}
+      />
     </div>
   );
 }

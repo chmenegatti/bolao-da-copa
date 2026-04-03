@@ -8,6 +8,8 @@ import { formatMatchDate, formatMatchDateKey } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
+import { toast } from "sonner";
+import { PAYMENT_PENDING_MESSAGE } from "@/lib/payment";
 
 interface Match {
   id: string;
@@ -31,14 +33,20 @@ interface Guess {
 interface GamesListProps {
   matches: Match[];
   guesses: Guess[];
+  canPlaceBets: boolean;
 }
 
-export default function GamesList({ matches, guesses }: GamesListProps) {
+export default function GamesList({ matches, guesses, canPlaceBets }: GamesListProps) {
   const [selectedGame, setSelectedGame] = useState<Match | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dateFilter, setDateFilter] = useState<Date | undefined>(() => new Date());
 
   const handleBet = (game: Match) => {
+    if (!canPlaceBets) {
+      toast.error(PAYMENT_PENDING_MESSAGE);
+      return;
+    }
+
     const isFinished = game.status === "FINISHED" || (game.scoreA !== null && game.scoreB !== null);
     if (isFinished) {
       return;
@@ -101,6 +109,7 @@ export default function GamesList({ matches, guesses }: GamesListProps) {
                   game={match}
                   guess={guesses.find((g) => g.matchId === match.id)}
                   onBet={handleBet}
+                  canPlaceBets={canPlaceBets}
                 />
               ))}
             </div>

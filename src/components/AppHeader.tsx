@@ -18,6 +18,7 @@ import {
   HelpCircle,
   ChevronDown,
   User,
+  Banknote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -59,7 +60,12 @@ export default function AppHeader({
   const userMenuLinks = [
     { href: "/my-bets", label: "Meus Palpites", icon: ListChecks },
     { href: "/help", label: "Como Funciona", icon: HelpCircle },
-    ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: Shield }] : []),
+    ...(isAdmin
+      ? [
+        { href: "/admin", label: "Admin", icon: Shield },
+        { href: "/admin/finance", label: "Finanças", icon: Banknote },
+      ]
+      : []),
   ];
 
   return (

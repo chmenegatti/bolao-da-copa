@@ -1,0 +1,2 @@
+ALTER TABLE "User" ADD COLUMN "paymentConfirmed" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "User" ADD COLUMN "paymentConfirmedAt" DATETIME;

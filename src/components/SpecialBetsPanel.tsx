@@ -37,6 +37,7 @@ interface SpecialBetsPanelProps {
     finalScoreA: number;
     finalScoreB: number;
   } | null;
+  canPlaceBets: boolean;
 }
 
 export default function SpecialBetsPanel({
@@ -47,12 +48,13 @@ export default function SpecialBetsPanel({
   championClosed,
   topScorerResult,
   championResultData,
+  canPlaceBets,
 }: SpecialBetsPanelProps) {
   const [isPending, startTransition] = useTransition();
 
   // A aposta fica travada se: já foi feita, prazo fechou, ou resultado já foi lançado
-  const topScorerLocked = !!topScorerBet || !bettingOpen || topScorerClosed;
-  const championLocked = !!championBet || !bettingOpen || championClosed;
+  const topScorerLocked = !!topScorerBet || !bettingOpen || topScorerClosed || !canPlaceBets;
+  const championLocked = !!championBet || !bettingOpen || championClosed || !canPlaceBets;
 
   // Top Scorer form
   const [playerName, setPlayerName] = useState("");
@@ -177,7 +179,13 @@ export default function SpecialBetsPanel({
           {(topScorerLocked || !bettingOpen) && !topScorerResult && (
             <Badge className="ml-auto bg-red-600 text-white">
               <Lock className="h-3 w-3 mr-1" />
-              {!bettingOpen ? "Prazo Encerrado" : topScorerBet ? "Aposta Registrada" : "Encerrado"}
+              {!canPlaceBets
+                ? "Pagamento pendente"
+                : !bettingOpen
+                  ? "Prazo Encerrado"
+                  : topScorerBet
+                    ? "Aposta Registrada"
+                    : "Encerrado"}
             </Badge>
           )}
         </div>
@@ -256,7 +264,13 @@ export default function SpecialBetsPanel({
           {(championLocked || !bettingOpen) && !championResultData && (
             <Badge className="ml-auto bg-red-600 text-white">
               <Lock className="h-3 w-3 mr-1" />
-              {!bettingOpen ? "Prazo Encerrado" : championBet ? "Aposta Registrada" : "Encerrado"}
+              {!canPlaceBets
+                ? "Pagamento pendente"
+                : !bettingOpen
+                  ? "Prazo Encerrado"
+                  : championBet
+                    ? "Aposta Registrada"
+                    : "Encerrado"}
             </Badge>
           )}
         </div>
