@@ -277,26 +277,25 @@ export default function AdminPanel({
       {/* Tabs */}
       <Tabs defaultValue="results" className="space-y-4">
         <TabsList
-          className="grid h-auto w-full grid-cols-1 gap-2 sm:grid-cols-2 md:h-8 md:grid-cols-5"
-          style={{ display: "grid" }}
+          className="flex h-auto w-full items-stretch gap-2 overflow-x-auto pb-1 md:h-8 md:flex-wrap md:overflow-visible"
         >
-          <TabsTrigger value="results" className="flex min-w-0 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:py-0.5">
+          <TabsTrigger value="results" className="flex shrink-0 min-w-34 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:min-w-0 md:py-0.5">
             <BarChart3 className="h-4 w-4" />
             Resultados
           </TabsTrigger>
-          <TabsTrigger value="matches" className="flex min-w-0 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:py-0.5">
+          <TabsTrigger value="matches" className="flex shrink-0 min-w-34 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:min-w-0 md:py-0.5">
             <Trophy className="h-4 w-4" />
             Partidas
           </TabsTrigger>
-          <TabsTrigger value="tournament" className="flex min-w-0 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:py-0.5">
+          <TabsTrigger value="tournament" className="flex shrink-0 min-w-34 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:min-w-0 md:py-0.5">
             <Crown className="h-4 w-4" />
             Torneio
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex min-w-0 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:py-0.5">
+          <TabsTrigger value="users" className="flex shrink-0 min-w-34 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:min-w-0 md:py-0.5">
             <Shield className="h-4 w-4" />
             Usuários
           </TabsTrigger>
-          <TabsTrigger value="guesses" className="flex min-w-0 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:py-0.5">
+          <TabsTrigger value="guesses" className="flex shrink-0 min-w-34 items-center justify-center gap-2 px-3 py-2.5 text-xs sm:text-sm md:min-w-0 md:py-0.5">
             <Target className="h-4 w-4" />
             Palpites
           </TabsTrigger>
