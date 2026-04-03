@@ -25,6 +25,14 @@ export function formatMatchDate(date: Date, fmt: string = "dd MMM"): string {
 }
 
 /**
+ * Retorna uma chave de data no formato yyyy-MM-dd no fuso de São Paulo.
+ */
+export function formatMatchDateKey(date: Date): string {
+  const zonedDate = toZonedTime(new Date(date), TIMEZONE);
+  return format(zonedDate, "yyyy-MM-dd", { locale: ptBR });
+}
+
+/**
  * Formata o horário da partida no fuso de São Paulo.
  */
 export function formatMatchTime(date: Date): string {
