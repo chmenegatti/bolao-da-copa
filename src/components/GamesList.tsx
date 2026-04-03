@@ -83,7 +83,7 @@ export default function GamesList({ matches, guesses }: GamesListProps) {
                 <Button
                   variant="outline"
                   className={cn(
-                    "justify-start text-left font-normal",
+                    "w-53 justify-between text-left font-normal data-[empty=true]:text-muted-foreground",
                     !dateFilter && "text-muted-foreground"
                   )}
                 >
