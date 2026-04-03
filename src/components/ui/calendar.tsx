@@ -1,52 +1,134 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ptBR } from "date-fns/locale"
-import { DayPicker } from "react-day-picker"
+import * as React from "react";
+import {
+  addDays,
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameDay,
+  isSameMonth,
+  isToday,
+  startOfMonth,
+  startOfWeek,
+  subMonths,
+} from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-function Calendar({
-  className,
-  classNames,
-  showOutsideDays = true,
-  ...props
-}: React.ComponentProps<typeof DayPicker>) {
-  return (
-    <DayPicker
-      showOutsideDays={showOutsideDays}
-      locale={ptBR}
-      className={cn("p-3", className)}
-      classNames={{
-        months: "flex flex-col sm:flex-row gap-4",
-        month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
-        nav_button: cn(buttonVariants({ variant: "ghost", size: "icon-sm" }), "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100"),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
-        head_row: "flex",
-        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-        day: cn(buttonVariants({ variant: "ghost", size: "icon-sm" }), "h-9 w-9 p-0 font-normal aria-selected:opacity-100"),
-        day_range_end: "day-range-end",
-        day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
-        day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
-        day_disabled: "text-muted-foreground opacity-50",
-        day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-        day_hidden: "invisible",
-        ...classNames,
-      }}
-      {...props}
-    />
-  )
+interface CalendarProps {
+  className?: string;
+  mode?: "single";
+  selected?: Date;
+  onSelect?: (date: Date | undefined) => void;
+  initialFocus?: boolean;
 }
 
-Calendar.displayName = "Calendar"
+function capitalizeLabel(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
 
-export { Calendar }
+function Calendar({ className, selected, onSelect }: CalendarProps) {
+  const [visibleMonth, setVisibleMonth] = React.useState(() => startOfMonth(selected ?? new Date()));
+
+  React.useEffect(() => {
+    if (selected) {
+      setVisibleMonth(startOfMonth(selected));
+    }
+  }, [selected]);
+
+  const days = React.useMemo(() => {
+    const monthStart = startOfWeek(startOfMonth(visibleMonth), { locale: ptBR });
+    const monthEnd = endOfWeek(endOfMonth(visibleMonth), { locale: ptBR });
+    return eachDayOfInterval({ start: monthStart, end: monthEnd });
+  }, [visibleMonth]);
+
+  const weekdayLabels = React.useMemo(() => {
+    const weekStart = startOfWeek(new Date(), { locale: ptBR });
+    return eachDayOfInterval({ start: weekStart, end: addDays(weekStart, 6) }).map((day) =>
+      capitalizeLabel(format(day, "EEE", { locale: ptBR }).replace(".", ""))
+    );
+  }, []);
+
+  const monthLabel = capitalizeLabel(format(visibleMonth, "MMMM yyyy", { locale: ptBR }));
+
+  return (
+    <div className={cn("w-full rounded-xl border bg-background p-3", className)}>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div>
+          <p className="text-sm font-semibold text-foreground">{monthLabel}</p>
+          <p className="text-xs text-muted-foreground">Escolha um dia para filtrar os jogos.</p>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setVisibleMonth((current) => subMonths(current, 1))}
+            aria-label="Mês anterior"
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setVisibleMonth((current) => addMonths(current, 1))}
+            aria-label="Próximo mês"
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 text-center text-[0.72rem] font-semibold uppercase tracking-wide text-muted-foreground">
+        {weekdayLabels.map((label) => (
+          <div key={label} className="py-1">
+            {label}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-2 grid grid-cols-7 gap-1">
+        {days.map((day) => {
+          const isOutsideMonth = !isSameMonth(day, visibleMonth);
+          const isSelected = selected ? isSameDay(day, selected) : false;
+          const isCurrentDay = isToday(day);
+
+          return (
+            <Button
+              key={day.toISOString()}
+              type="button"
+              variant={isSelected ? "default" : "ghost"}
+              size="icon-sm"
+              className={cn(
+                "h-9 w-9 rounded-full p-0 font-normal",
+                isOutsideMonth && "text-muted-foreground/60",
+                isCurrentDay && !isSelected && "ring-1 ring-primary/40",
+                isSelected && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+              )}
+              onClick={() => {
+                onSelect?.(day);
+                setVisibleMonth(startOfMonth(day));
+              }}
+              aria-label={format(day, "PPP", { locale: ptBR })}
+              aria-pressed={isSelected}
+            >
+              {format(day, "d")}
+            </Button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+Calendar.displayName = "Calendar";
+
+export { Calendar };

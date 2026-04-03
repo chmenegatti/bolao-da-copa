@@ -1,16 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon, X } from "lucide-react";
+import { X } from "lucide-react";
 import GameCard from "@/components/GameCard";
 import BetDialog from "@/components/BetDialog";
 import { formatMatchDate, formatMatchDateKey } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface Match {
   id: string;
@@ -54,8 +51,9 @@ export default function GamesList({ matches, guesses }: GamesListProps) {
     ? guesses.find((g) => g.matchId === selectedGame.id)
     : undefined;
 
-  const filteredMatches = dateFilter
-    ? matches.filter((match) => formatMatchDateKey(new Date(match.datetime)) === format(dateFilter, "yyyy-MM-dd"))
+  const selectedDateKey = dateFilter ? formatMatchDateKey(dateFilter) : undefined;
+  const filteredMatches = selectedDateKey
+    ? matches.filter((match) => formatMatchDateKey(new Date(match.datetime)) === selectedDateKey)
     : matches;
 
   // Group matches by date
@@ -78,28 +76,7 @@ export default function GamesList({ matches, guesses }: GamesListProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-53 justify-between text-left font-normal data-[empty=true]:text-muted-foreground",
-                    !dateFilter && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateFilter ? format(dateFilter, "dd/MM/yyyy") : "Selecionar data"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="single"
-                  selected={dateFilter}
-                  onSelect={setDateFilter}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker value={dateFilter} onChange={setDateFilter} />
 
             {dateFilter && (
               <Button variant="ghost" size="sm" onClick={() => setDateFilter(undefined)}>
