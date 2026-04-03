@@ -10,6 +10,23 @@ if [[ -z "${DEV_APP_IMAGE:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${DEV_DATABASE_URL:-}" ]]; then
+  DEV_DATABASE_URL="file:/data/palpite-dev.db"
+fi
+
+if [[ -z "${DEV_NEXTAUTH_URL:-}" ]]; then
+  DEV_NEXTAUTH_URL="http://localhost:3000"
+elif [[ "${DEV_NEXTAUTH_URL}" != http://* && "${DEV_NEXTAUTH_URL}" != https://* ]]; then
+  if [[ "${DEV_NEXTAUTH_URL}" == localhost:* || "${DEV_NEXTAUTH_URL}" == 127.0.0.1:* || "${DEV_NEXTAUTH_URL}" == 0.0.0.0:* ]]; then
+    DEV_NEXTAUTH_URL="http://${DEV_NEXTAUTH_URL}"
+  else
+    DEV_NEXTAUTH_URL="https://${DEV_NEXTAUTH_URL}"
+  fi
+fi
+
+export DEV_DATABASE_URL
+export DEV_NEXTAUTH_URL
+
 cd "$PROJECT_ROOT"
 
 if [[ -z "${DEV_AUTH_SECRET:-}" ]]; then

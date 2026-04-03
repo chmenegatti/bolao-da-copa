@@ -51,7 +51,7 @@ jobs:
     needs: build-and-push
     runs-on: [self-hosted, linux]
     env:
-      DATABASE_URL: file:/data/palpite-dev.db
+      DEV_DATABASE_URL: file:/data/palpite-dev.db
       DEV_ADMIN_PASS: ${{ secrets.DEV_ADMIN_PASS }}
       DEV_AUTH_SECRET: ${{ secrets.DEV_AUTH_SECRET }}
       DEV_NEXTAUTH_URL: ${{ vars.DEV_NEXTAUTH_URL }}
