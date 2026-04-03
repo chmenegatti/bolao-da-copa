@@ -234,6 +234,26 @@ O painel admin tem botões de seed para a Copa e para a base de teste do Brasile
 
 O usuário admin é recriado automaticamente no deploy com a senha vinda de `ADMIN_PASS`.
 
+### 7.1 Deploy da branch `develop`
+
+A branch `develop` tem um fluxo separado para testes de novas features. Ela sobe em Docker com:
+
+- proxy Nginx na porta `3000`
+- aplicação Next.js na porta `3002`
+- banco isolado em `file:/data/palpite-dev.db`
+
+O deploy usa o workflow `.github/workflows/docker-publish-develop.yml` e o compose `docker-compose.develop.yml`.
+
+Variáveis esperadas no ambiente da branch `develop`:
+
+```env
+DEV_NEXTAUTH_URL="http://localhost:3000"
+DEV_AUTH_SECRET="seu_secret_de_teste"
+DEV_ADMIN_PASS="senha_do_admin_de_teste"
+```
+
+Se você estiver rodando localmente, o stack fica acessível em `http://localhost:3000` e a aplicação interna escuta em `3002`.
+
 ---
 
 ## 🔑 Variáveis de ambiente
