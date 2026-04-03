@@ -24,9 +24,9 @@ services:
       HOSTNAME: 0.0.0.0
       PORT: 3002
       DATABASE_URL: ${DATABASE_URL:-file:/data/palpite-dev.db}
-      ADMIN_PASS: ${ADMIN_PASS}
-      AUTH_SECRET: ${AUTH_SECRET}
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      ADMIN_PASS: ${DEV_ADMIN_PASS}
+      AUTH_SECRET: ${DEV_AUTH_SECRET}
+      NEXTAUTH_URL: ${DEV_NEXTAUTH_URL:-http://localhost:3000}
     volumes:
       - app-data:/data
     expose:

@@ -12,13 +12,13 @@ fi
 
 cd "$PROJECT_ROOT"
 
-if [[ -z "${AUTH_SECRET:-}" ]]; then
-  echo "AUTH_SECRET precisa estar definido no ambiente de deploy" >&2
+if [[ -z "${DEV_AUTH_SECRET:-}" ]]; then
+  echo "DEV_AUTH_SECRET precisa estar definido no ambiente de deploy" >&2
   exit 1
 fi
 
-if [[ -z "${ADMIN_PASS:-}" ]]; then
-  echo "ADMIN_PASS precisa estar definido no ambiente de deploy" >&2
+if [[ -z "${DEV_ADMIN_PASS:-}" ]]; then
+  echo "DEV_ADMIN_PASS precisa estar definido no ambiente de deploy" >&2
   exit 1
 fi
 
@@ -47,6 +47,6 @@ if [[ "$health_status" != "healthy" ]]; then
   exit 1
 fi
 
-docker compose -f "$COMPOSE_FILE" exec -T app sh -lc "ADMIN_PASS=\"$ADMIN_PASS\" npm run -s prisma:seed:admin"
+docker compose -f "$COMPOSE_FILE" exec -T app sh -lc "npm run -s prisma:seed:admin"
 
 echo "Deploy da branch develop concluído"
