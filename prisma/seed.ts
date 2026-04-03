@@ -13,6 +13,8 @@ const adapter = new PrismaBetterSQLite3({
 });
 
 const prisma = new PrismaClient({ adapter });
+const SEED_MODE = process.env.SEED_MODE ?? "worldcup";
+const DEFAULT_TEST_ADMIN_PASSWORD = "admin123";
 
 type MatchSeed = {
   teamA: string;
@@ -37,14 +39,13 @@ async function resetCompetitionData(
   await tx.user.updateMany({ data: { totalPoints: 0 } });
 }
 
-const SEED_MODE = process.env.SEED_MODE ?? "worldcup";
 const adminPassword = process.env.ADMIN_PASS;
 
-if (!adminPassword) {
+const adminPasswordValue = adminPassword ?? (SEED_MODE === "brasileirao-test" ? DEFAULT_TEST_ADMIN_PASSWORD : "");
+
+if (!adminPasswordValue) {
   throw new Error("ADMIN_PASS environment variable is required");
 }
-
-const adminPasswordValue = adminPassword;
 
 async function seedAdminUser(adminPasswordValue: string) {
   const hashedPassword = await hash(adminPasswordValue, 12);
@@ -67,27 +68,27 @@ async function seedAdminUser(adminPasswordValue: string) {
 
 function buildBrasileiraoTestMatches(): MatchSeed[] {
   return [
-    { teamA: "Botafogo", teamB: "Mirassol", datetime: new Date("2026-04-01T19:30:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Internacional", teamB: "São Paulo", datetime: new Date("2026-04-01T19:30:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Cruzeiro", teamB: "Vitória", datetime: new Date("2026-04-01T20:00:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Bahia", teamB: "Athletico-PR", datetime: new Date("2026-04-01T20:00:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Coritiba", teamB: "Vasco", datetime: new Date("2026-04-01T20:30:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Fluminense", teamB: "Corinthians", datetime: new Date("2026-04-01T21:30:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Palmeiras", teamB: "Grêmio", datetime: new Date("2026-04-02T16:00:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Bragantino", teamB: "Flamengo", datetime: new Date("2026-04-02T18:30:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Santos", teamB: "Remo", datetime: new Date("2026-04-02T19:00:00-03:00"), groupStage: "Rodada 9" },
-    { teamA: "Chapecoense", teamB: "Atlético-MG", datetime: new Date("2026-04-02T19:00:00-03:00"), groupStage: "Rodada 9" },
-    // Rodada 10 de 38 - sábado e domingo, 04-05/04/2026
     { teamA: "São Paulo", teamB: "Cruzeiro", datetime: new Date("2026-04-04T18:30:00-03:00"), groupStage: "Rodada 10" },
     { teamA: "Coritiba", teamB: "Fluminense", datetime: new Date("2026-04-04T20:30:00-03:00"), groupStage: "Rodada 10" },
     { teamA: "Vasco da Gama", teamB: "Botafogo", datetime: new Date("2026-04-04T21:00:00-03:00"), groupStage: "Rodada 10" },
-    { teamA: "Chapecoense", teamB: "EC Vitória", datetime: new Date("2026-04-05T16:00:00-03:00"), groupStage: "Rodada 10" },
-    { teamA: "Flamengo", teamB: "Santos", datetime: new Date("2026-04-05T17:30:00-03:00"), groupStage: "Rodada 10" },
+    { teamA: "Chapecoense", teamB: "Vitória", datetime: new Date("2026-04-05T16:00:00-03:00"), groupStage: "Rodada 10" },
     { teamA: "Atlético-MG", teamB: "Athletico-PR", datetime: new Date("2026-04-05T17:30:00-03:00"), groupStage: "Rodada 10" },
+    { teamA: "Flamengo", teamB: "Santos", datetime: new Date("2026-04-05T17:30:00-03:00"), groupStage: "Rodada 10" },
     { teamA: "Bahia", teamB: "Palmeiras", datetime: new Date("2026-04-05T19:30:00-03:00"), groupStage: "Rodada 10" },
     { teamA: "Corinthians", teamB: "Internacional", datetime: new Date("2026-04-05T19:30:00-03:00"), groupStage: "Rodada 10" },
     { teamA: "Mirassol", teamB: "Bragantino", datetime: new Date("2026-04-05T20:00:00-03:00"), groupStage: "Rodada 10" },
-    { teamA: "Grêmio", teamB: "Remo", datetime: new Date("2026-04-05T20:30:00-03:00"), groupStage: "Rodada 10" },
+    { teamA: "Grêmio", teamB: "Clube do Remo", datetime: new Date("2026-04-05T20:30:00-03:00"), groupStage: "Rodada 10" },
+
+    { teamA: "Clube do Remo", teamB: "CR Vasco da Gama", datetime: new Date("2026-04-11T19:30:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "EC Vitória", teamB: "São Paulo FC", datetime: new Date("2026-04-11T19:30:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "Fluminense FC", teamB: "CR Flamengo", datetime: new Date("2026-04-11T21:30:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "Mirassol FC", teamB: "EC Bahia", datetime: new Date("2026-04-11T21:30:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "Santos FC", teamB: "CA Mineiro", datetime: new Date("2026-04-11T23:00:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "SC Internacional", teamB: "Grêmio FBPA", datetime: new Date("2026-04-11T23:30:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "CA Paranaense", teamB: "Chapecoense AF", datetime: new Date("2026-04-12T14:00:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "Botafogo FR", teamB: "Coritiba FBC", datetime: new Date("2026-04-12T19:00:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "SC Corinthians Paulista", teamB: "SE Palmeiras", datetime: new Date("2026-04-12T21:30:00.000Z"), groupStage: "Rodada 11" },
+    { teamA: "Cruzeiro EC", teamB: "RB Bragantino", datetime: new Date("2026-04-12T21:30:00.000Z"), groupStage: "Rodada 11" },
   ];
 }
 
