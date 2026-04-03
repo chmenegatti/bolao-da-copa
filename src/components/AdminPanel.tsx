@@ -233,9 +233,10 @@ export default function AdminPanel({
               Recria a base da Copa ou recria a base de teste do Brasileirão.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <Button
               variant="outline"
+              className="w-full sm:w-auto"
               disabled={isPending}
               onClick={() => {
                 if (!confirm("Isso vai recriar a base da Copa. Continuar?")) return;
@@ -253,6 +254,7 @@ export default function AdminPanel({
             </Button>
             <Button
               variant="outline"
+              className="w-full sm:w-auto"
               disabled={isPending}
               onClick={() => {
                 if (!confirm("Isso vai recriar a base de teste do Brasileirão. Continuar?")) return;
@@ -274,24 +276,27 @@ export default function AdminPanel({
 
       {/* Tabs */}
       <Tabs defaultValue="results" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="results" className="flex items-center gap-2">
+        <TabsList
+          className="grid w-full grid-cols-2 gap-2 md:grid-cols-5"
+          style={{ display: "grid" }}
+        >
+          <TabsTrigger value="results" className="flex min-w-0 items-center justify-center gap-2 px-2 py-2 text-xs sm:text-sm">
             <BarChart3 className="h-4 w-4" />
             Resultados
           </TabsTrigger>
-          <TabsTrigger value="matches" className="flex items-center gap-2">
+          <TabsTrigger value="matches" className="flex min-w-0 items-center justify-center gap-2 px-2 py-2 text-xs sm:text-sm">
             <Trophy className="h-4 w-4" />
             Partidas
           </TabsTrigger>
-          <TabsTrigger value="tournament" className="flex items-center gap-2">
+          <TabsTrigger value="tournament" className="flex min-w-0 items-center justify-center gap-2 px-2 py-2 text-xs sm:text-sm">
             <Crown className="h-4 w-4" />
             Torneio
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-2">
+          <TabsTrigger value="users" className="flex min-w-0 items-center justify-center gap-2 px-2 py-2 text-xs sm:text-sm">
             <Shield className="h-4 w-4" />
             Usuários
           </TabsTrigger>
-          <TabsTrigger value="guesses" className="flex items-center gap-2">
+          <TabsTrigger value="guesses" className="flex min-w-0 items-center justify-center gap-2 px-2 py-2 text-xs sm:text-sm">
             <Target className="h-4 w-4" />
             Palpites
           </TabsTrigger>
