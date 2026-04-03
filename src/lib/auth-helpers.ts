@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
 export async function getSession() {
@@ -10,7 +11,22 @@ export async function getRequiredUser() {
   if (!session?.user) {
     redirect("/auth");
   }
-  return session.user;
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+    },
+  });
+
+  if (!user) {
+    redirect("/auth");
+  }
+
+  return user;
 }
 
 export async function requireAdmin() {
