@@ -54,10 +54,10 @@ export default function AppHeader({
     { href: "/jogos", label: "Jogos", icon: Target },
     { href: "/ranking", label: "Ranking", icon: Trophy },
     { href: "/special-bets", label: "Apostas", icon: Crown },
-    { href: "/my-bets", label: "Meus", icon: ListChecks },
   ];
 
   const userMenuLinks = [
+    { href: "/my-bets", label: "Meus Palpites", icon: ListChecks },
     { href: "/help", label: "Como Funciona", icon: HelpCircle },
     ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: Shield }] : []),
   ];
@@ -77,7 +77,7 @@ export default function AppHeader({
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1 rounded-full bg-white/6 p-1 ring-1 ring-white/10">
+          <nav className="hidden md:flex items-center gap-1.5 rounded-full bg-white/6 p-1.5 ring-1 ring-white/10">
             {links.map((link) => {
               const Icon = link.icon;
               const active = pathname === link.href;
@@ -86,7 +86,7 @@ export default function AppHeader({
                   key={link.href}
                   href={link.href}
                   title={link.label}
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors ${active
+                  className={`flex min-w-fit items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2.5 text-sm font-medium transition-colors ${active
                     ? "bg-white/15 text-white shadow-sm"
                     : "text-white/70 hover:bg-white/10 hover:text-white"
                     }`}
@@ -112,7 +112,7 @@ export default function AppHeader({
             <div ref={userMenuRef} className="relative">
               <Button
                 variant="ghost"
-                className="h-10 rounded-full border border-white/10 bg-white/5 px-3 text-white hover:bg-white/10"
+                className="h-10 rounded-full border border-white/10 bg-white/5 px-4 text-white hover:bg-white/10"
                 onClick={() => setUserMenuOpen((open) => !open)}
               >
                 <User className="h-4 w-4 mr-2" />
@@ -136,7 +136,7 @@ export default function AppHeader({
                         key={link.href}
                         href={link.href}
                         onClick={() => setUserMenuOpen(false)}
-                        className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors ${active
+                        className={`mt-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors first:mt-0 ${active
                           ? "bg-white/10 text-white"
                           : "text-white/80 hover:bg-white/10 hover:text-white"
                           }`}
@@ -148,7 +148,7 @@ export default function AppHeader({
                   })}
                   <button
                     onClick={() => signOut({ callbackUrl: "/auth" })}
-                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                    className="mt-1 flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
                   >
                     <LogOut className="h-4 w-4" />
                     Sair
