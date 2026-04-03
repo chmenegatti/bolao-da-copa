@@ -100,8 +100,10 @@ O projeto já está preparado para rodar em Docker com `output: 'standalone'` e 
 | Situação | Pontos |
 |---|:---:|
 | 🎯 Placar exato | **25** |
-| 🥈 Vencedor + diferença de gols corretos | **18** |
-| 🥉 Apenas vencedor (ou empate) correto | **10** |
+| 🥈 Vencedor + gols de um time corretos | **20** |
+| 🥉 Empate não exato | **18** |
+| 🟤 Apenas vencedor correto | **15** |
+| 🟢 Gols do perdedor | **5** |
 | ❌ Erro total | **0** |
 
 ### Apostas Especiais

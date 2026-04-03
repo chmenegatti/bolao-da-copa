@@ -117,9 +117,9 @@ export default function HelpPage() {
               <p className="text-xs text-muted-foreground mt-1">Acertou o placar completo da partida</p>
             </div>
             <div className="text-center p-4 rounded-lg border-2 border-slate-300 bg-slate-50">
-              <PointsBadge points={18} variant="silver" />
+              <PointsBadge points={20} variant="silver" />
               <p className="font-bold mt-2 text-sm">Vencedor + Gols de 1 Time</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou quem venceu e um dos placares exatamente</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou quem venceu e o número exato de gols de um dos times</p>
             </div>
             <div className="text-center p-4 rounded-lg border-2 border-orange-300 bg-orange-50">
               <PointsBadge points={15} variant="bronze" />
@@ -127,16 +127,16 @@ export default function HelpPage() {
               <p className="text-xs text-muted-foreground mt-1">Acertou só quem venceu, mas errou os placares</p>
             </div>
             <div className="text-center p-4 rounded-lg border-2 border-blue-300 bg-blue-50">
-              <PointsBadge points={10} variant="default" />
+              <PointsBadge points={18} variant="default" />
               <p className="font-bold mt-2 text-sm">Empate Não Exato</p>
-              <p className="text-xs text-muted-foreground mt-1">Acertou que empatou, mas errou o número de gols</p>
+              <p className="text-xs text-muted-foreground mt-1">Acertou que empatou, mas errou o número de gols dos dois times</p>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3">
             <div className="text-center p-4 rounded-lg border-2 border-emerald-300 bg-emerald-50">
               <PointsBadge points={5} variant="default" />
-              <p className="font-bold mt-2 text-sm">Gols de um time</p>
-              <p className="text-xs text-muted-foreground mt-1">Errou o resultado final, mas acertou os gols de um time</p>
+              <p className="font-bold mt-2 text-sm">Gols do Perdedor</p>
+              <p className="text-xs text-muted-foreground mt-1">Errou o vencedor, mas acertou os gols do time que perdeu</p>
             </div>
           </div>
 
@@ -157,8 +157,8 @@ export default function HelpPage() {
                 label="Brasil 2 × 1 Argentina"
                 real="2 × 1"
                 guess="3 × 1"
-                points={18}
-                description="Vencedor correto e um dos placares exatos. 18 pontos."
+                points={20}
+                description="Vencedor correto e um dos placares exatos. 20 pontos."
                 variant="silver"
               />
               <ExampleCard
@@ -173,16 +173,16 @@ export default function HelpPage() {
                 label="Brasil 2 × 2 Argentina"
                 real="2 × 2"
                 guess="1 × 1"
-                points={10}
-                description="Acertou que empatou, mas errou o placar."
+                points={18}
+                description="Acertou que empatou, mas errou o número de gols dos dois times."
                 variant="default"
               />
               <ExampleCard
-                label="Coreia do Sul 0 × 0 Rep. Tcheca"
-                real="0 × 0"
+                label="Brasil 3 × 1 Argentina"
+                real="3 × 1"
                 guess="0 × 1"
                 points={5}
-                description="Errou o resultado final, mas acertou os gols de um time."
+                description="Errou o vencedor, mas acertou os gols do time que perdeu."
                 variant="default"
               />
               <ExampleCard
@@ -379,18 +379,18 @@ export default function HelpPage() {
                 </tr>
                 <tr>
                   <td className="py-2 pr-4">Vencedor + gols de 1 time corretos</td>
-                  <td className="py-2 text-right"><PointsBadge points={18} variant="silver" /></td>
+                  <td className="py-2 text-right"><PointsBadge points={20} variant="silver" /></td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4">Empate não exato</td>
+                  <td className="py-2 text-right"><PointsBadge points={18} variant="default" /></td>
                 </tr>
                 <tr>
                   <td className="py-2 pr-4">Apenas vencedor, sem placares exatos</td>
                   <td className="py-2 text-right"><PointsBadge points={15} variant="bronze" /></td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4">Empate não exato</td>
-                  <td className="py-2 text-right"><PointsBadge points={10} variant="default" /></td>
-                </tr>
-                <tr>
-                  <td className="py-2 pr-4">Gols isolados</td>
+                  <td className="py-2 pr-4">Gols do perdedor</td>
                   <td className="py-2 text-right"><PointsBadge points={5} variant="default" /></td>
                 </tr>
                 <tr>

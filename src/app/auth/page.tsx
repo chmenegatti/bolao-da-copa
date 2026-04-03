@@ -73,9 +73,9 @@ export default function AuthPage() {
                   <Trophy className="h-5 w-5 text-gold" />
                 </div>
                 <div>
-                  <p className="font-semibold">18 pontos - Vencedor + Gols de 1 Time</p>
+                  <p className="font-semibold">20 pontos - Vencedor + Gols de 1 Time</p>
                   <p className="text-sm text-white/60">
-                    Acertou quem venceu e um dos placares exatamente
+                    Acertou quem venceu e o número exato de gols de um dos times
                   </p>
                 </div>
               </div>
@@ -93,8 +93,8 @@ export default function AuthPage() {
                   <CheckCircle2 className="h-5 w-5 text-white/60" />
                 </div>
                 <div>
-                  <p className="font-semibold">10 pontos - Empate Não Exato</p>
-                  <p className="text-sm text-white/60">Acertou que empatou, mas errou o número de gols</p>
+                  <p className="font-semibold">18 pontos - Empate Não Exato</p>
+                  <p className="text-sm text-white/60">Acertou que empatou, mas errou o número de gols dos dois times</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -102,9 +102,9 @@ export default function AuthPage() {
                   <CheckCircle2 className="h-5 w-5 text-white/60" />
                 </div>
                 <div>
-                  <p className="font-semibold">5 pontos - Gols Isolados</p>
+                  <p className="font-semibold">5 pontos - Gols do Perdedor</p>
                   <p className="text-sm text-white/60">
-                    Errou o resultado final, mas acertou os gols de um time
+                    Errou o vencedor, mas acertou os gols do time que perdeu
                   </p>
                 </div>
               </div>

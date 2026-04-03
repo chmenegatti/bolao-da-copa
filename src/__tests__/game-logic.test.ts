@@ -15,13 +15,22 @@ describe("calculateGuessPoints", () => {
     expect(calculateGuessPoints(3, 3, 3, 3)).toBe(25);
   });
 
-  // ── 18 pts: vencedor + gols de um time ─────────────────────────────────
-  it("retorna 18 para vencedor correto com um placar exato de time", () => {
-    expect(calculateGuessPoints(3, 0, 3, 1)).toBe(18);
+  // ── 20 pts: vencedor + gols de um time ─────────────────────────────────
+  it("retorna 20 para vencedor correto com um placar exato de time", () => {
+    expect(calculateGuessPoints(3, 0, 3, 1)).toBe(20);
   });
 
-  it("retorna 18 para vitória do B com um placar exato de time", () => {
-    expect(calculateGuessPoints(2, 1, 3, 1)).toBe(18);
+  it("retorna 20 para vitória do B com um placar exato de time", () => {
+    expect(calculateGuessPoints(2, 1, 3, 1)).toBe(20);
+  });
+
+  // ── 18 pts: empate não exato ───────────────────────────────────────────
+  it("retorna 18 para empate sem placar exato", () => {
+    expect(calculateGuessPoints(1, 1, 2, 2)).toBe(18);
+  });
+
+  it("retorna 0 para empate com apenas um placar exato", () => {
+    expect(calculateGuessPoints(2, 1, 2, 2)).toBe(0);
   });
 
   // ── 15 pts: vencedor seco ──────────────────────────────────────────────
@@ -33,18 +42,13 @@ describe("calculateGuessPoints", () => {
     expect(calculateGuessPoints(4, 2, 3, 1)).toBe(15);
   });
 
-  // ── 10 pts: empate não exato ───────────────────────────────────────────
-  it("retorna 10 para empate sem placar exato", () => {
-    expect(calculateGuessPoints(1, 1, 2, 2)).toBe(10);
-  });
-
   // ── 5 pts: gols isolados ───────────────────────────────────────────────
-  it("retorna 5 quando erra o resultado, mas acerta os gols do A", () => {
-    expect(calculateGuessPoints(3, 4, 3, 1)).toBe(5);
+  it("retorna 5 quando erra o vencedor, mas acerta os gols do perdedor", () => {
+    expect(calculateGuessPoints(0, 1, 3, 1)).toBe(5);
   });
 
-  it("retorna 5 quando erra o resultado, mas acerta os gols do B", () => {
-    expect(calculateGuessPoints(0, 1, 3, 1)).toBe(5);
+  it("retorna 0 quando erra o vencedor e não acerta os gols do perdedor", () => {
+    expect(calculateGuessPoints(1, 3, 3, 1)).toBe(0);
   });
 
   // ── 0 pts: erro total ───────────────────────────────────────────────────
