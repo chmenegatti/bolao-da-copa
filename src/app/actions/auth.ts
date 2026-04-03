@@ -12,6 +12,7 @@ export async function signUp(formData: FormData) {
   const name = (formData.get("name") as string | null)?.trim() ?? "";
   const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
   const password = (formData.get("password") as string | null) ?? "";
+  const confirmPassword = (formData.get("confirmPassword") as string | null) ?? "";
 
   if (!name || !email || !password) {
     return { error: "Preencha todos os campos." };
@@ -23,6 +24,10 @@ export async function signUp(formData: FormData) {
 
   if (password.length < 6) {
     return { error: "A senha deve ter pelo menos 6 caracteres." };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "As senhas não coincidem." };
   }
 
   try {

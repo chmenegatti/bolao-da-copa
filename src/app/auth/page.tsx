@@ -6,7 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Star, Target, Trophy, CheckCircle2, Crown, Crosshair } from "lucide-react";
+import {
+  Star,
+  Target,
+  Trophy,
+  CheckCircle2,
+  Crown,
+  Crosshair,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { signUp, login } from "@/app/actions/auth";
 import { toast } from "sonner";
 
@@ -14,9 +23,24 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = (formData: FormData) => {
     setError(null);
+
+    if (!isLogin) {
+      const password = (formData.get("password") as string | null) ?? "";
+      const confirmPassword = (formData.get("confirmPassword") as string | null) ?? "";
+
+      if (password !== confirmPassword) {
+        const message = "As senhas não coincidem.";
+        setError(message);
+        toast.error(message);
+        return;
+      }
+    }
+
     startTransition(async () => {
       if (isLogin) {
         const result = await login(formData);
@@ -168,6 +192,7 @@ export default function AuthPage() {
                 />
               </div>
             )}
+
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -179,18 +204,58 @@ export default function AuthPage() {
                 required
               />
             </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder={isLogin ? "Sua senha" : "Mín. 6 caracteres"}
-                className="h-11 px-4 text-base"
-                required
-                minLength={6}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder={isLogin ? "Sua senha" : "Mín. 6 caracteres"}
+                  className="h-11 px-4 pr-12 text-base"
+                  required
+                  minLength={6}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowPassword((value) => !value)}
+                  aria-label={showPassword ? "Ocultar senha" : "Visualizar senha"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
+
+            {!isLogin && (
+              <div className="space-y-1.5">
+                <Label htmlFor="confirmPassword">Confirmar senha</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirme sua senha"
+                    className="h-11 px-4 pr-12 text-base"
+                    required
+                    minLength={6}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowConfirmPassword((value) => !value)}
+                    aria-label={showConfirmPassword ? "Ocultar confirmação de senha" : "Visualizar confirmação de senha"}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {error && (
               <p className="text-sm text-destructive text-center">{error}</p>
@@ -214,6 +279,8 @@ export default function AuthPage() {
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError(null);
+                setShowPassword(false);
+                setShowConfirmPassword(false);
               }}
               className="text-primary font-semibold hover:underline"
             >
