@@ -24,7 +24,7 @@ export default async function AdminPage() {
       orderBy: { createdAt: "desc" },
       include: {
         user: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, role: true },
         },
         match: {
           select: {

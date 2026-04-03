@@ -44,6 +44,7 @@ import {
   Shield,
   BarChart3,
   Crown,
+  ChevronDown,
 } from "lucide-react";
 import {
   finishMatch,
@@ -106,6 +107,7 @@ interface Guess {
     id: string;
     name: string;
     email: string;
+    role: string;
   };
   match: {
     id: string;
@@ -1473,6 +1475,20 @@ function GuessesTab({ guesses }: { guesses: Guess[] }) {
   const exactHits = guesses.filter((guess) => guess.pointsEarned === 25).length;
   const positiveHits = guesses.filter((guess) => (guess.pointsEarned ?? 0) > 0).length;
   const uniqueUsers = new Set(guesses.map((guess) => guess.userId)).size;
+  const [openUserId, setOpenUserId] = useState<string | null>(guesses[0]?.userId ?? null);
+
+  const guessesByUser = guesses.reduce<Record<string, Guess[]>>((acc, guess) => {
+    if (!acc[guess.userId]) {
+      acc[guess.userId] = [];
+    }
+    acc[guess.userId].push(guess);
+    return acc;
+  }, {});
+
+  const groupedUsers = guesses
+    .map((guess) => guess.user)
+    .filter((user, index, array) => array.findIndex((candidate) => candidate.id === user.id) === index)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <div className="space-y-4">
@@ -1504,80 +1520,127 @@ function GuessesTab({ guesses }: { guesses: Guess[] }) {
       </Card>
 
       <Card>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Participante</TableHead>
-                <TableHead>Partida</TableHead>
-                <TableHead className="text-center">Palpite</TableHead>
-                <TableHead className="text-center">Resultado</TableHead>
-                <TableHead className="text-center">Pontos</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {guesses.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                    Nenhum palpite registrado ainda.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                guesses.map((guess) => {
-                  const isFinished = guess.match.status === "FINISHED";
-                  const points = guess.pointsEarned ?? 0;
-                  const tone =
-                    points === 25
-                      ? "bg-green-600 text-white"
-                      : points > 0
-                        ? "bg-amber-600 text-white"
-                        : "bg-muted text-muted-foreground";
+        <div className="p-4 space-y-4">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-display text-lg font-semibold">Palpites por usuário</h3>
+              <p className="text-sm text-muted-foreground">
+                Clique em um usuário para expandir os palpites dele.
+              </p>
+            </div>
+            <Badge variant="outline">{groupedUsers.length} usuários</Badge>
+          </div>
 
-                  return (
-                    <TableRow key={guess.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{guess.user.name}</p>
-                          <p className="text-xs text-muted-foreground">{guess.user.email}</p>
+          {groupedUsers.length === 0 ? (
+            <p className="py-8 text-center text-muted-foreground">Nenhum palpite registrado ainda.</p>
+          ) : (
+            <div className="space-y-3">
+              {groupedUsers.map((user) => {
+                const userGuesses = (guessesByUser[user.id] ?? []).sort(
+                  (a, b) => new Date(b.match.datetime).getTime() - new Date(a.match.datetime).getTime()
+                );
+                const isOpen = openUserId === user.id;
+                const userPoints = userGuesses.reduce((sum, guess) => sum + (guess.pointsEarned ?? 0), 0);
+
+                return (
+                  <div key={user.id} className="overflow-hidden rounded-2xl border bg-card">
+                    <button
+                      type="button"
+                      onClick={() => setOpenUserId(isOpen ? null : user.id)}
+                      className={cn(
+                        "flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-muted/50",
+                        isOpen && "border-b border-border bg-muted/30"
+                      )}
+                    >
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold truncate">{user.name}</p>
+                          {user.role === "ADMIN" ? (
+                            <Badge className="bg-amber-600 text-white">Admin</Badge>
+                          ) : (
+                            <Badge variant="secondary">Usuário</Badge>
+                          )}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">
-                            {guess.match.teamA} vs {guess.match.teamB}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatMatchDate(new Date(guess.match.datetime), "dd MMM")} · {formatMatchTime(new Date(guess.match.datetime))} · {guess.match.groupStage}
-                          </p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="hidden sm:flex flex-col items-end text-xs text-muted-foreground">
+                          <span>{userGuesses.length} palpites</span>
+                          <span>{userPoints} pts somados</span>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-center font-medium">
-                        {guess.guessA} × {guess.guessB}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {isFinished ? (
-                          <span className="font-medium">
-                            {guess.match.scoreA} × {guess.match.scoreB}
-                          </span>
+                        <Badge variant="outline">{userGuesses.length} palpites</Badge>
+                        <ChevronDown
+                          className={cn(
+                            "h-4 w-4 text-muted-foreground transition-transform",
+                            isOpen && "rotate-180"
+                          )}
+                        />
+                      </div>
+                    </button>
+
+                    {isOpen && (
+                      <div className="space-y-3 px-4 py-4">
+                        <div className="flex items-center justify-between text-sm text-muted-foreground sm:hidden">
+                          <span>{userGuesses.length} palpites</span>
+                          <span>{userPoints} pts somados</span>
+                        </div>
+
+                        {userGuesses.length === 0 ? (
+                          <p className="py-4 text-sm text-muted-foreground">Este usuário ainda não fez palpites.</p>
                         ) : (
-                          <span className="text-muted-foreground">Em aberto</span>
+                          userGuesses.map((guess) => {
+                            const isFinished = guess.match.status === "FINISHED";
+                            const points = guess.pointsEarned ?? 0;
+                            const tone =
+                              points === 25
+                                ? "bg-green-600 text-white"
+                                : points > 0
+                                  ? "bg-amber-600 text-white"
+                                  : "bg-muted text-muted-foreground";
+
+                            return (
+                              <div key={guess.id} className="rounded-xl border p-4">
+                                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                                  <div>
+                                    <p className="font-semibold">
+                                      {guess.match.teamA} vs {guess.match.teamB}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {formatMatchDate(new Date(guess.match.datetime), "dd MMM")} · {formatMatchTime(new Date(guess.match.datetime))} · {guess.match.groupStage}
+                                    </p>
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <Badge variant="outline">
+                                      {guess.guessA} × {guess.guessB}
+                                    </Badge>
+                                    <Badge className={tone}>{isFinished ? `+${points} pts` : "Em aberto"}</Badge>
+                                  </div>
+                                </div>
+
+                                <div className="mt-3 grid gap-3 sm:grid-cols-2 text-sm">
+                                  <div className="rounded-lg bg-muted/50 p-3">
+                                    <p className="text-xs text-muted-foreground mb-1">Resultado</p>
+                                    <p className="font-semibold">
+                                      {isFinished ? `${guess.match.scoreA} × ${guess.match.scoreB}` : "Ainda sem placar"}
+                                    </p>
+                                  </div>
+                                  <div className="rounded-lg bg-muted/50 p-3">
+                                    <p className="text-xs text-muted-foreground mb-1">Status</p>
+                                    <p className="font-semibold">{isFinished ? "Fechado" : "Aberto"}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })
                         )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge className={tone}>{isFinished ? `+${points} pts` : "Em aberto"}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={isFinished ? "default" : "secondary"}>
-                          {isFinished ? "Fechado" : "Aberto"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </Card>
     </div>
