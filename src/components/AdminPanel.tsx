@@ -132,6 +132,7 @@ interface TournamentResultData {
 }
 
 const KNOCKOUT_STAGES = [
+  "Dezessesseisavos de Final",
   "Oitavas de Final",
   "Quartas de Final",
   "Semifinal",
@@ -139,15 +140,19 @@ const KNOCKOUT_STAGES = [
   "Final",
 ];
 
-type AdminSection = "results" | "matches" | "tournament" | "users" | "guesses";
+type AdminSection = "results" | "jogos" | "tournament" | "users" | "guesses";
 
 const ADMIN_SECTIONS: Array<{ value: AdminSection; label: string; icon: typeof BarChart3 }> = [
   { value: "results", label: "Resultados", icon: BarChart3 },
-  { value: "matches", label: "Partidas", icon: Trophy },
+  { value: "jogos", label: "Jogos", icon: Trophy },
   { value: "tournament", label: "Torneio", icon: Crown },
   { value: "users", label: "Usuários", icon: Shield },
   { value: "guesses", label: "Palpites", icon: Target },
 ];
+
+const ADMIN_SECTION_ITEMS = Object.fromEntries(
+  ADMIN_SECTIONS.map((section) => [section.value, section.label])
+) as Record<AdminSection, string>;
 
 export default function AdminPanel({
   matches,
@@ -174,7 +179,7 @@ export default function AdminPanel({
     switch (section) {
       case "results":
         return <ResultsTab matches={matches} isPending={isPending} startTransition={startTransition} />;
-      case "matches":
+      case "jogos":
         return <MatchesTab matches={matches} isPending={isPending} startTransition={startTransition} />;
       case "tournament":
         return <TournamentTab results={tournamentResults} isPending={isPending} startTransition={startTransition} />;
@@ -306,11 +311,18 @@ export default function AdminPanel({
             <div className="space-y-2">
               <Label htmlFor="admin-section">Seção</Label>
               <Select
+                items={ADMIN_SECTION_ITEMS}
                 value={activeSection}
                 onValueChange={(value) => setActiveSection(value as AdminSection)}
               >
                 <SelectTrigger id="admin-section" className="w-full">
-                  <SelectValue placeholder="Selecione uma seção" />
+                  <span className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                    {(() => {
+                      const Icon = ADMIN_SECTIONS.find((section) => section.value === activeSection)?.icon ?? BarChart3;
+                      return <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />;
+                    })()}
+                    <SelectValue placeholder="Selecione uma seção" />
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {ADMIN_SECTIONS.map((section) => {

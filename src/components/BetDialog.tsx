@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,9 +31,16 @@ export default function BetDialog({
   onOpenChange,
   existingGuess,
 }: BetDialogProps) {
-  const [scoreA, setScoreA] = useState(existingGuess?.guessA?.toString() ?? "");
-  const [scoreB, setScoreB] = useState(existingGuess?.guessB?.toString() ?? "");
+  const [scoreA, setScoreA] = useState("0");
+  const [scoreB, setScoreB] = useState("0");
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!game || !open) return;
+
+    setScoreA(existingGuess?.guessA?.toString() ?? "0");
+    setScoreB(existingGuess?.guessB?.toString() ?? "0");
+  }, [game?.id, existingGuess?.guessA, existingGuess?.guessB, open]);
 
   const handleSave = () => {
     const a = parseInt(scoreA);
@@ -81,8 +88,8 @@ export default function BetDialog({
   // Reset scores when dialog opens with new game
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && game) {
-      setScoreA(existingGuess?.guessA?.toString() ?? "");
-      setScoreB(existingGuess?.guessB?.toString() ?? "");
+      setScoreA(existingGuess?.guessA?.toString() ?? "0");
+      setScoreB(existingGuess?.guessB?.toString() ?? "0");
     }
     onOpenChange(isOpen);
   };

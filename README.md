@@ -266,9 +266,13 @@ DATABASE_URL="file:./prisma/dev.db"
 
 # NextAuth — gere um secret com: openssl rand -base64 32
 AUTH_SECRET="seu_secret_aqui"
+NEXTAUTH_SECRET="seu_secret_aqui"
 
 # URL base da aplicação
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3010"
+
+# Admin local do Docker
+ADMIN_PASS="Admin@2026#"
 ```
 
 > ⚠️ **Nunca** versione o arquivo `.env` com valores reais. O arquivo já está no `.gitignore`.
