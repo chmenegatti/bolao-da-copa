@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   Dialog,
   DialogContent,
@@ -31,16 +31,9 @@ export default function BetDialog({
   onOpenChange,
   existingGuess,
 }: BetDialogProps) {
-  const [scoreA, setScoreA] = useState("0");
-  const [scoreB, setScoreB] = useState("0");
+  const [scoreA, setScoreA] = useState(() => existingGuess?.guessA?.toString() ?? "0");
+  const [scoreB, setScoreB] = useState(() => existingGuess?.guessB?.toString() ?? "0");
   const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    if (!game || !open) return;
-
-    setScoreA(existingGuess?.guessA?.toString() ?? "0");
-    setScoreB(existingGuess?.guessB?.toString() ?? "0");
-  }, [game?.id, existingGuess?.guessA, existingGuess?.guessB, open]);
 
   const handleSave = () => {
     const a = parseInt(scoreA);

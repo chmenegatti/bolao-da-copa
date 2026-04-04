@@ -124,6 +124,7 @@ export default function GamesList({ matches, guesses, canPlaceBets }: GamesListP
       )}
 
       <BetDialog
+        key={selectedGame?.id ?? "bet-dialog"}
         game={selectedGame}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
