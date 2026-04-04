@@ -1738,12 +1738,15 @@ function UserFormDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl lg:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="font-display">{title}</DialogTitle>
+      <DialogContent className="overflow-hidden rounded-2xl border p-0 shadow-2xl sm:max-w-xl lg:max-w-2xl">
+        <DialogHeader className="border-b bg-muted/30 px-6 py-5 text-left">
+          <DialogTitle className="font-display text-xl">{title}</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Preencha os dados abaixo para criar ou atualizar o usuário.
+          </p>
         </DialogHeader>
         <form action={onSubmit}>
-          <div className="grid gap-4 py-4 sm:grid-cols-2">
+          <div className="grid gap-4 px-6 py-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
               <Input
@@ -1791,7 +1794,7 @@ function UserFormDialog({
               </select>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="border-t bg-muted/20 px-6 py-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
