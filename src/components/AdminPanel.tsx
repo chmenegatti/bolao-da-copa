@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -45,6 +46,7 @@ import {
   BarChart3,
   Crown,
   ChevronDown,
+  X,
 } from "lucide-react";
 import {
   finishMatch,
@@ -62,7 +64,7 @@ import {
   setTopScorerResult,
   setChampionResult,
 } from "@/app/actions/special-bets";
-import { formatMatchDate, formatMatchTime, formatMatchDateTimeForInput } from "@/lib/timezone";
+import { formatMatchDate, formatMatchTime, formatMatchDateKey, formatMatchDateTimeForInput } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -435,9 +437,16 @@ function ResultsTab({
   const [scores, setScores] = useState<Record<string, { scoreA: string; scoreB: string }>>({});
   const [goalsMap, setGoalsMap] = useState<Record<string, GoalData[]>>({});
   const [goalDialogMatch, setGoalDialogMatch] = useState<Match | null>(null);
+  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
 
   const scheduledMatches = matches.filter((m) => m.status === "SCHEDULED");
   const finishedMatches = matches.filter((m) => m.status === "FINISHED");
+  const filteredScheduledMatches = dateFilter
+    ? scheduledMatches.filter(
+      (match) =>
+        formatMatchDateKey(new Date(match.datetime)) === formatMatchDateKey(dateFilter)
+    )
+    : scheduledMatches;
 
   const handleFinish = (match: Match) => {
     const s = scores[match.id];
@@ -478,16 +487,34 @@ function ResultsTab({
     <div className="space-y-6">
       {/* Pending matches */}
       <div>
-        <h2 className="font-display text-xl font-semibold mb-4">
-          Partidas Pendentes ({scheduledMatches.length})
-        </h2>
-        {scheduledMatches.length === 0 ? (
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="font-display text-xl font-semibold">
+              Partidas Pendentes ({filteredScheduledMatches.length})
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Filtre por data para inserir os placares mais rápido.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <DatePicker value={dateFilter} onChange={setDateFilter} placeholder="Filtrar por data" />
+            {dateFilter && (
+              <Button variant="ghost" size="sm" onClick={() => setDateFilter(undefined)}>
+                <X className="mr-2 h-4 w-4" />
+                Limpar
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {filteredScheduledMatches.length === 0 ? (
           <Card className="p-6 text-center text-muted-foreground">
-            Nenhuma partida pendente.
+            Nenhuma partida pendente para a data selecionada.
           </Card>
         ) : (
-          <div className="space-y-4">
-            {scheduledMatches.map((match) => {
+          <div className="grid gap-4 xl:grid-cols-2">
+            {filteredScheduledMatches.map((match) => {
               const matchGoals = goalsMap[match.id] || [];
               return (
                 <Card key={match.id} className="p-4">

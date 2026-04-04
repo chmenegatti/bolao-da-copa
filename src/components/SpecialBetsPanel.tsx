@@ -110,17 +110,17 @@ export default function SpecialBetsPanel({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Points Legend */}
-      <Card className="p-4 bg-muted/50">
-        <h3 className="font-display font-semibold mb-3">Pontuação Especial</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+      <Card className="bg-muted/50 p-4 sm:p-5">
+        <h3 className="font-display font-semibold mb-4">Pontuação Especial</h3>
+        <div className="grid grid-cols-1 gap-5 text-sm md:grid-cols-2 md:gap-4">
           <div>
-            <p className="font-semibold flex items-center gap-2 mb-1">
+            <p className="mb-2 flex items-center gap-2 font-semibold">
               <Crosshair className="h-4 w-4 text-amber-500" />
               Artilheiro
             </p>
-            <ul className="space-y-1 text-muted-foreground ml-6">
+            <ul className="ml-6 space-y-2 text-muted-foreground">
               <li>
                 <Badge variant="secondary" className="mr-1">
                   35 pts
@@ -136,11 +136,11 @@ export default function SpecialBetsPanel({
             </ul>
           </div>
           <div>
-            <p className="font-semibold flex items-center gap-2 mb-1">
+            <p className="mb-2 flex items-center gap-2 font-semibold">
               <Crown className="h-4 w-4 text-amber-500" />
               Campeão
             </p>
-            <ul className="space-y-1 text-muted-foreground ml-6">
+            <ul className="ml-6 space-y-2 text-muted-foreground">
               <li>
                 <Badge variant="secondary" className="mr-1">
                   90 pts
@@ -165,8 +165,8 @@ export default function SpecialBetsPanel({
       </Card>
 
       {/* Top Scorer Bet */}
-      <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
+      <Card className="p-5 sm:p-6">
+        <div className="mb-5 flex items-center gap-3">
           <div className="p-2 rounded-lg bg-amber-500/10">
             <Crosshair className="h-6 w-6 text-amber-500" />
           </div>
@@ -191,7 +191,7 @@ export default function SpecialBetsPanel({
         </div>
 
         {topScorerResult && (
-          <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+          <div className="mb-4 rounded-lg border border-green-500/20 bg-green-500/10 p-3">
             <p className="text-sm font-semibold text-green-700 dark:text-green-400">
               Resultado: {topScorerResult.playerName} — {topScorerResult.totalGoals} gols
             </p>
@@ -199,7 +199,7 @@ export default function SpecialBetsPanel({
         )}
 
         {topScorerBet && (
-          <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+          <div className="mb-4 rounded-lg border border-blue-500/20 bg-blue-500/10 p-3">
             <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
               Sua aposta: {topScorerBet.playerName} — {topScorerBet.totalGoals} gols
             </p>
@@ -222,9 +222,9 @@ export default function SpecialBetsPanel({
 
         {!topScorerLocked && (
           <>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <Label>Nome do Jogador</Label>
+                <Label className="mb-1 block">Nome do Jogador</Label>
                 <Input
                   placeholder="Ex: Mbappé"
                   value={playerName}
@@ -232,7 +232,7 @@ export default function SpecialBetsPanel({
                 />
               </div>
               <div>
-                <Label>Quantidade de Gols</Label>
+                <Label className="mb-1 block">Quantidade de Gols</Label>
                 <Input
                   type="number"
                   min={0}
@@ -242,7 +242,7 @@ export default function SpecialBetsPanel({
                 />
               </div>
             </div>
-            <Button className="mt-4" onClick={handleSaveTopScorer} disabled={isPending}>
+            <Button className="mt-5 w-full sm:w-auto" onClick={handleSaveTopScorer} disabled={isPending}>
               Salvar Aposta
             </Button>
           </>
@@ -250,8 +250,8 @@ export default function SpecialBetsPanel({
       </Card>
 
       {/* Champion Bet */}
-      <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
+      <Card className="p-5 sm:p-6">
+        <div className="mb-5 flex items-center gap-3">
           <div className="p-2 rounded-lg bg-primary/10">
             <Crown className="h-6 w-6 text-primary" />
           </div>
@@ -276,7 +276,7 @@ export default function SpecialBetsPanel({
         </div>
 
         {championResultData && (
-          <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+          <div className="mb-4 rounded-lg border border-green-500/20 bg-green-500/10 p-3">
             <p className="text-sm font-semibold text-green-700 dark:text-green-400">
               Resultado: {championResultData.champion} {championResultData.finalScoreA} ×{" "}
               {championResultData.finalScoreB} {championResultData.runnerUp}
@@ -285,7 +285,7 @@ export default function SpecialBetsPanel({
         )}
 
         {championBet && (
-          <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+          <div className="mb-4 rounded-lg border border-blue-500/20 bg-blue-500/10 p-3">
             <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
               Sua aposta: {championBet.champion} {championBet.finalScoreA} × {championBet.finalScoreB} ({championBet.runnerUp})
             </p>
@@ -308,10 +308,10 @@ export default function SpecialBetsPanel({
 
         {!championLocked && (
           <>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <Label>Campeão</Label>
+                  <Label className="mb-1 block">Campeão</Label>
                   <Input
                     placeholder="Ex: Brasil"
                     value={champion}
@@ -319,7 +319,7 @@ export default function SpecialBetsPanel({
                   />
                 </div>
                 <div>
-                  <Label>Vice-Campeão</Label>
+                  <Label className="mb-1 block">Vice-Campeão</Label>
                   <Input
                     placeholder="Ex: Argentina"
                     value={runnerUp}
@@ -331,10 +331,10 @@ export default function SpecialBetsPanel({
               <Separator />
 
               <div>
-                <Label className="mb-2 block">Placar da Final</Label>
-                <div className="flex items-center gap-3">
+                <Label className="mb-3 block">Placar da Final</Label>
+                <div className="flex items-center gap-2 sm:gap-3">
                   <div className="flex-1">
-                    <Label className="text-xs text-muted-foreground">
+                    <Label className="mb-1 block text-xs text-muted-foreground">
                       {champion || "Campeão"}
                     </Label>
                     <Input
@@ -346,9 +346,9 @@ export default function SpecialBetsPanel({
                       onChange={(e) => setFinalScoreA(e.target.value)}
                     />
                   </div>
-                  <span className="text-muted-foreground font-bold mt-5">×</span>
+                  <span className="mt-5 font-bold text-muted-foreground">×</span>
                   <div className="flex-1">
-                    <Label className="text-xs text-muted-foreground">
+                    <Label className="mb-1 block text-xs text-muted-foreground">
                       {runnerUp || "Vice"}
                     </Label>
                     <Input
@@ -363,7 +363,7 @@ export default function SpecialBetsPanel({
                 </div>
               </div>
             </div>
-            <Button className="mt-4" onClick={handleSaveChampion} disabled={isPending}>
+            <Button className="mt-5 w-full sm:w-auto" onClick={handleSaveChampion} disabled={isPending}>
               Salvar Aposta
             </Button>
           </>
