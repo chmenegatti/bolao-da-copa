@@ -126,9 +126,9 @@ export default function AuthPage() {
                   <CheckCircle2 className="h-5 w-5 text-white/60" />
                 </div>
                 <div>
-                  <p className="font-semibold">5 pontos - Gols do Perdedor</p>
+                  <p className="font-semibold">5 pontos - Gols de um Time com Vencedor Errado</p>
                   <p className="text-sm text-white/60">
-                    Errou o vencedor, mas acertou os gols do time que perdeu
+                    Errou o vencedor, mas acertou os gols de um time que não venceu
                   </p>
                 </div>
               </div>

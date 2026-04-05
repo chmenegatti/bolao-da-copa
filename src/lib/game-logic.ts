@@ -22,7 +22,8 @@ export function canUserPlaceGuess(matchDate: Date): boolean {
  *  20 pts — Vencedor + gols de um time     (ex: 3×1 → 3×0 ou 2×1)
  *  18 pts — Empate não exato               (ex: 2×2 → 1×1)
  *  15 pts — Vencedor seco                  (ex: 3×1 → 1×0 ou 4×2)
- *   5 pts — Gols do perdedor               (ex: 3×1 → 0×1 ou 1×3)
+ *   5 pts — Gols de um time com vencedor errado
+ *          (ex: 3×1 → 0×1, 1×3 ou 1×1)
  *   0 pts — Erro total
  */
 export function calculateGuessPoints(
@@ -42,9 +43,17 @@ export function calculateGuessPoints(
   if (guessA === realA && guessB === realB) return 25;
 
   if (realWinner === "draw") {
-    if (guessWinner === "draw" && guessA !== realA && guessB !== realB) {
-      return 18;
+    if (guessWinner === "draw") {
+      if (guessA !== realA && guessB !== realB) {
+        return 18;
+      }
+      return 0;
     }
+
+    if (hasExactTeamScore) {
+      return 5;
+    }
+
     return 0;
   }
 
@@ -53,10 +62,7 @@ export function calculateGuessPoints(
     return 15;
   }
 
-  if (
-    (realWinner === "a" && guessB === realB) ||
-    (realWinner === "b" && guessA === realA)
-  ) {
+  if (hasExactTeamScore) {
     return 5;
   }
 
