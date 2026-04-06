@@ -217,6 +217,7 @@ export async function createUser(formData: FormData) {
   const name = (formData.get("name") as string | null)?.trim() ?? "";
   const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
   const password = (formData.get("password") as string | null) ?? "";
+  const confirmPassword = (formData.get("confirmPassword") as string | null) ?? "";
   const role = ((formData.get("role") as string | null)?.trim() ?? Role.USER).toUpperCase();
 
   if (!name || !email || !password) {
@@ -230,6 +231,9 @@ export async function createUser(formData: FormData) {
   }
   if (password.length < 6) {
     return { error: "A senha deve ter pelo menos 6 caracteres." };
+  }
+  if (password !== confirmPassword) {
+    return { error: "As senhas não coincidem." };
   }
 
   try {
@@ -263,6 +267,7 @@ export async function updateUser(userId: string, formData: FormData) {
   const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
   const role = ((formData.get("role") as string | null)?.trim() ?? "").toUpperCase();
   const password = (formData.get("password") as string | null) ?? "";
+  const confirmPassword = (formData.get("confirmPassword") as string | null) ?? "";
 
   if (!name || !email || !role) {
     return { error: "Preencha nome, email e papel." };
@@ -284,6 +289,7 @@ export async function updateUser(userId: string, formData: FormData) {
   const data: Prisma.UserUpdateInput = { name, email, role };
   if (password && password.length > 0) {
     if (password.length < 6) return { error: "Senha deve ter pelo menos 6 caracteres." };
+    if (password !== confirmPassword) return { error: "As senhas não coincidem." };
     data.password = await hash(password, 12);
   }
 
