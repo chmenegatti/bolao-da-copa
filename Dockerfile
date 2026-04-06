@@ -13,7 +13,7 @@ RUN npm ci
 
 FROM base AS builder
 
-ARG DATABASE_URL=file:./prisma/build.db
+ARG DATABASE_URL=postgresql://prisma:prisma@localhost:5432/prisma?schema=public
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL=${DATABASE_URL}
@@ -34,6 +34,7 @@ WORKDIR /app
 
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/node_modules ./node_modules
 
 USER node

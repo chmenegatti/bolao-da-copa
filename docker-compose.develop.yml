@@ -15,6 +15,26 @@ services:
     networks:
       - appnet
 
+  db:
+    image: postgres:16-alpine
+    container_name: palpite-dev-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-palpite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-palpite}
+      POSTGRES_DB: ${POSTGRES_DB:-palpite_develop}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+    networks:
+      - appnet
+
   app:
     image: ${DEV_APP_IMAGE:-ghcr.io/OWNER/REPO:develop}
     container_name: palpite-dev-app
@@ -23,14 +43,29 @@ services:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
       PORT: 3002
-      DATABASE_URL: ${DEV_DATABASE_URL:-file:/data/palpite-dev.db}
+      DATABASE_URL: ${DEV_DATABASE_URL:-postgresql://${POSTGRES_USER:-palpite}:${POSTGRES_PASSWORD:-palpite}@db:5432/${POSTGRES_DB:-palpite_develop}?schema=public}
       ADMIN_PASS: ${DEV_ADMIN_PASS}
       AUTH_SECRET: ${DEV_AUTH_SECRET}
       NEXTAUTH_URL: ${DEV_NEXTAUTH_URL:-http://localhost:3000}
+      LEGACY_SQLITE_PATH: /legacy-data/palpite-dev.db
     volumes:
-      - app-data:/data
+      - app-data:/legacy-data:ro
     expose:
       - "3002"
+    depends_on:
+      - db
+    command:
+      - sh
+      - -lc
+      - |
+          until npx prisma db push --skip-generate --accept-data-loss; do
+            echo "Aguardando o Postgres do develop..."
+            sleep 2
+          done
+
+          npm run -s db:import:legacy
+          cd .next/standalone
+          exec node server.js
     healthcheck:
       test:
         ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3002/api/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))\""]
@@ -47,3 +82,4 @@ networks:
 
 volumes:
   app-data:
+  db-data:
