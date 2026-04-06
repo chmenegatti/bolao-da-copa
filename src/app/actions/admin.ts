@@ -308,6 +308,34 @@ export async function deleteUser(userId: string) {
   return { success: true };
 }
 
+export async function setUserPaymentStatus(userId: string, paymentConfirmed: boolean) {
+  await requireAdmin();
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true },
+  });
+
+  if (!user) {
+    return { error: "Usuário não encontrado." };
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      paymentConfirmed,
+      paymentConfirmedAt: paymentConfirmed ? new Date() : null,
+    },
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/finance");
+  revalidatePath("/jogos");
+  revalidatePath("/special-bets");
+  revalidatePath("/my-bets");
+  return { success: true };
+}
+
 export async function resetTournamentData() {
   await requireAdmin();
 

@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getRequiredUser, requireAdmin } from "@/lib/auth-helpers";
 import { canUserPlaceGuess } from "@/lib/game-logic";
+import { PAYMENT_PENDING_MESSAGE } from "@/lib/payment";
 import { recalculateUsersTotalPoints } from "@/lib/points-recalculation";
 import { revalidatePath } from "next/cache";
 
@@ -27,6 +28,11 @@ async function assertSpecialBetsOpen() {
 
 export async function saveTopScorerBet(playerName: string, totalGoals: number) {
   const user = await getRequiredUser();
+
+  if (!user.paymentConfirmed) {
+    return { error: PAYMENT_PENDING_MESSAGE };
+  }
+
   const normalizedPlayerName = playerName.trim();
 
   if (!normalizedPlayerName) {
@@ -75,6 +81,11 @@ export async function saveChampionBet(
   finalScoreB: number
 ) {
   const user = await getRequiredUser();
+
+  if (!user.paymentConfirmed) {
+    return { error: PAYMENT_PENDING_MESSAGE };
+  }
+
   const normalizedChampion = champion.trim();
   const normalizedRunnerUp = runnerUp.trim();
 

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -45,6 +46,7 @@ import {
   BarChart3,
   Crown,
   ChevronDown,
+  X,
 } from "lucide-react";
 import {
   finishMatch,
@@ -62,7 +64,7 @@ import {
   setTopScorerResult,
   setChampionResult,
 } from "@/app/actions/special-bets";
-import { formatMatchDate, formatMatchTime, formatMatchDateTimeForInput } from "@/lib/timezone";
+import { formatMatchDate, formatMatchTime, formatMatchDateKey, formatMatchDateTimeForInput } from "@/lib/timezone";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -132,12 +134,27 @@ interface TournamentResultData {
 }
 
 const KNOCKOUT_STAGES = [
+  "Dezessesseisavos de Final",
   "Oitavas de Final",
   "Quartas de Final",
   "Semifinal",
   "Disputa 3º Lugar",
   "Final",
 ];
+
+type AdminSection = "results" | "jogos" | "tournament" | "users" | "guesses";
+
+const ADMIN_SECTIONS: Array<{ value: AdminSection; label: string; icon: typeof BarChart3 }> = [
+  { value: "results", label: "Resultados", icon: BarChart3 },
+  { value: "jogos", label: "Jogos", icon: Trophy },
+  { value: "tournament", label: "Torneio", icon: Crown },
+  { value: "users", label: "Usuários", icon: Shield },
+  { value: "guesses", label: "Palpites", icon: Target },
+];
+
+const ADMIN_SECTION_ITEMS = Object.fromEntries(
+  ADMIN_SECTIONS.map((section) => [section.value, section.label])
+) as Record<AdminSection, string>;
 
 export default function AdminPanel({
   matches,
@@ -153,11 +170,27 @@ export default function AdminPanel({
   const [isPending, startTransition] = useTransition();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [resetConfirmation, setResetConfirmation] = useState("");
+  const [activeSection, setActiveSection] = useState<AdminSection>("results");
 
   const totalMatches = matches.length;
   const finishedCount = matches.filter((m) => m.status === "FINISHED").length;
   const totalUsers = users.length;
   const totalGuesses = matches.reduce((sum, m) => sum + m.guessCount, 0);
+
+  const renderActiveSection = (section: AdminSection) => {
+    switch (section) {
+      case "results":
+        return <ResultsTab matches={matches} isPending={isPending} startTransition={startTransition} />;
+      case "jogos":
+        return <MatchesTab matches={matches} isPending={isPending} startTransition={startTransition} />;
+      case "tournament":
+        return <TournamentTab results={tournamentResults} isPending={isPending} startTransition={startTransition} />;
+      case "users":
+        return <UsersTab users={users} guesses={guesses} isPending={isPending} startTransition={startTransition} />;
+      case "guesses":
+        return <GuessesTab guesses={guesses} />;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -233,9 +266,10 @@ export default function AdminPanel({
               Recria a base da Copa ou recria a base de teste do Brasileirão.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <Button
               variant="outline"
+              className="w-full sm:w-auto"
               disabled={isPending}
               onClick={() => {
                 if (!confirm("Isso vai recriar a base da Copa. Continuar?")) return;
@@ -253,6 +287,7 @@ export default function AdminPanel({
             </Button>
             <Button
               variant="outline"
+              className="w-full sm:w-auto"
               disabled={isPending}
               onClick={() => {
                 if (!confirm("Isso vai recriar a base de teste do Brasileirão. Continuar?")) return;
@@ -272,51 +307,59 @@ export default function AdminPanel({
         </CardContent>
       </Card>
 
-      {/* Tabs */}
-      <Tabs defaultValue="results" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="results" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Resultados
-          </TabsTrigger>
-          <TabsTrigger value="matches" className="flex items-center gap-2">
-            <Trophy className="h-4 w-4" />
-            Partidas
-          </TabsTrigger>
-          <TabsTrigger value="tournament" className="flex items-center gap-2">
-            <Crown className="h-4 w-4" />
-            Torneio
-          </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Usuários
-          </TabsTrigger>
-          <TabsTrigger value="guesses" className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            Palpites
-          </TabsTrigger>
-        </TabsList>
+      <div className="space-y-4">
+        <div className="md:hidden">
+          <Card className="p-4">
+            <div className="space-y-2">
+              <Label htmlFor="admin-section">Seção</Label>
+              <Select
+                items={ADMIN_SECTION_ITEMS}
+                value={activeSection}
+                onValueChange={(value) => setActiveSection(value as AdminSection)}
+              >
+                <SelectTrigger id="admin-section" className="w-full">
+                  <span className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                    {(() => {
+                      const Icon = ADMIN_SECTIONS.find((section) => section.value === activeSection)?.icon ?? BarChart3;
+                      return <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />;
+                    })()}
+                    <SelectValue placeholder="Selecione uma seção" />
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {ADMIN_SECTIONS.map((section) => {
+                    const Icon = section.icon;
+                    return (
+                      <SelectItem key={section.value} value={section.value}>
+                        <Icon className="h-4 w-4" />
+                        {section.label}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          </Card>
+        </div>
 
-        <TabsContent value="results">
-          <ResultsTab matches={matches} isPending={isPending} startTransition={startTransition} />
-        </TabsContent>
+        <Tabs value={activeSection} onValueChange={(value) => setActiveSection(value as AdminSection)} className="hidden md:block">
+          <TabsList className="grid w-full grid-cols-5">
+            {ADMIN_SECTIONS.map((section) => {
+              const Icon = section.icon;
+              return (
+                <TabsTrigger key={section.value} value={section.value} className="flex items-center gap-2 text-sm">
+                  <Icon className="h-4 w-4" />
+                  {section.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </Tabs>
 
-        <TabsContent value="matches">
-          <MatchesTab matches={matches} isPending={isPending} startTransition={startTransition} />
-        </TabsContent>
-
-        <TabsContent value="tournament">
-          <TournamentTab results={tournamentResults} isPending={isPending} startTransition={startTransition} />
-        </TabsContent>
-
-        <TabsContent value="users">
-          <UsersTab users={users} guesses={guesses} isPending={isPending} startTransition={startTransition} />
-        </TabsContent>
-
-        <TabsContent value="guesses">
-          <GuessesTab guesses={guesses} />
-        </TabsContent>
-      </Tabs>
+        <div>
+          {renderActiveSection(activeSection)}
+        </div>
+      </div>
 
       <Dialog
         open={resetDialogOpen}
@@ -394,9 +437,16 @@ function ResultsTab({
   const [scores, setScores] = useState<Record<string, { scoreA: string; scoreB: string }>>({});
   const [goalsMap, setGoalsMap] = useState<Record<string, GoalData[]>>({});
   const [goalDialogMatch, setGoalDialogMatch] = useState<Match | null>(null);
+  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
 
   const scheduledMatches = matches.filter((m) => m.status === "SCHEDULED");
   const finishedMatches = matches.filter((m) => m.status === "FINISHED");
+  const filteredScheduledMatches = dateFilter
+    ? scheduledMatches.filter(
+      (match) =>
+        formatMatchDateKey(new Date(match.datetime)) === formatMatchDateKey(dateFilter)
+    )
+    : scheduledMatches;
 
   const handleFinish = (match: Match) => {
     const s = scores[match.id];
@@ -437,16 +487,34 @@ function ResultsTab({
     <div className="space-y-6">
       {/* Pending matches */}
       <div>
-        <h2 className="font-display text-xl font-semibold mb-4">
-          Partidas Pendentes ({scheduledMatches.length})
-        </h2>
-        {scheduledMatches.length === 0 ? (
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="font-display text-xl font-semibold">
+              Partidas Pendentes ({filteredScheduledMatches.length})
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Filtre por data para inserir os placares mais rápido.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <DatePicker value={dateFilter} onChange={setDateFilter} placeholder="Filtrar por data" />
+            {dateFilter && (
+              <Button variant="ghost" size="sm" onClick={() => setDateFilter(undefined)}>
+                <X className="mr-2 h-4 w-4" />
+                Limpar
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {filteredScheduledMatches.length === 0 ? (
           <Card className="p-6 text-center text-muted-foreground">
-            Nenhuma partida pendente.
+            Nenhuma partida pendente para a data selecionada.
           </Card>
         ) : (
-          <div className="space-y-4">
-            {scheduledMatches.map((match) => {
+          <div className="grid gap-4 xl:grid-cols-2">
+            {filteredScheduledMatches.map((match) => {
               const matchGoals = goalsMap[match.id] || [];
               return (
                 <Card key={match.id} className="p-4">
@@ -1670,12 +1738,15 @@ function UserFormDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl lg:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="font-display">{title}</DialogTitle>
+      <DialogContent className="overflow-hidden rounded-2xl border p-0 shadow-2xl sm:max-w-xl lg:max-w-2xl">
+        <DialogHeader className="border-b bg-muted/30 px-6 py-5 text-left">
+          <DialogTitle className="font-display text-xl">{title}</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Preencha os dados abaixo para criar ou atualizar o usuário.
+          </p>
         </DialogHeader>
         <form action={onSubmit}>
-          <div className="grid gap-4 py-4 sm:grid-cols-2">
+          <div className="grid gap-4 px-6 py-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
               <Input
@@ -1723,7 +1794,7 @@ function UserFormDialog({
               </select>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="border-t bg-muted/20 px-6 py-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>

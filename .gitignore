@@ -44,3 +44,7 @@ next-env.d.ts
 # backups automáticos do banco
 /backups/
 REMEDIACAO-7-DIAS.md
+prisma/dev.db
+prisma/prisma/dev.db
+
+ANALISE_DO_REPOSITORIO.md

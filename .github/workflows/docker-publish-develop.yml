@@ -1,9 +1,9 @@
-name: Docker Publish
+name: Docker Publish Develop
 
 on:
   push:
     branches:
-      - main
+      - develop
   workflow_dispatch:
 
 permissions:
@@ -30,7 +30,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=latest
+            type=raw,value=develop
+            type=raw,value=develop-latest
             type=sha
 
       - name: Set up Docker Buildx
@@ -46,24 +47,20 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
-    name: Deploy blue-green no servidor
+    name: Deploy develop no servidor
     needs: build-and-push
     runs-on: [self-hosted, linux]
     env:
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_DB: ${{ vars.POSTGRES_DB }}
-      ADMIN_PASS: ${{ secrets.ADMIN_PASS }}
-      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-      NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+      POSTGRES_USER: ${{ secrets.DEV_POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.DEV_POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ vars.DEV_POSTGRES_DB }}
+      DEV_ADMIN_PASS: ${{ secrets.DEV_ADMIN_PASS }}
+      DEV_AUTH_SECRET: ${{ secrets.DEV_AUTH_SECRET }}
+      DEV_NEXTAUTH_URL: ${{ vars.DEV_NEXTAUTH_URL }}
+      DEV_APP_IMAGE: ghcr.io/${{ github.repository }}:develop-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Garantir proxy online
-        run: docker compose -f docker-compose.prod.yml up -d proxy
-
-      - name: Executar deploy blue-green
-        run: |
-          APP_IMAGE=ghcr.io/${{ github.repository }}:latest \
-          ./scripts/deploy-blue-green.sh
+      - name: Executar deploy develop
+        run: bash ./scripts/deploy-develop.sh

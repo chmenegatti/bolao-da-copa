@@ -19,6 +19,8 @@ export async function getRequiredUser() {
       name: true,
       email: true,
       role: true,
+      paymentConfirmed: true,
+      paymentConfirmedAt: true,
     },
   });
 

@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "db:import:legacy": "tsx scripts/import-sqlite-to-postgres.ts",
     "prisma:seed:admin": "SEED_MODE=admin-only npx tsx prisma/seed.ts",
     "prisma:seed:worldcup": "SEED_MODE=worldcup npx tsx prisma/seed.ts",
     "prisma:seed:brasileirao-test": "SEED_MODE=brasileirao-test npx tsx prisma/seed.ts"
@@ -49,7 +50,6 @@
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
   }
 }

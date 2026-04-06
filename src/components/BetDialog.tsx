@@ -31,8 +31,8 @@ export default function BetDialog({
   onOpenChange,
   existingGuess,
 }: BetDialogProps) {
-  const [scoreA, setScoreA] = useState(existingGuess?.guessA?.toString() ?? "");
-  const [scoreB, setScoreB] = useState(existingGuess?.guessB?.toString() ?? "");
+  const [scoreA, setScoreA] = useState(() => existingGuess?.guessA?.toString() ?? "0");
+  const [scoreB, setScoreB] = useState(() => existingGuess?.guessB?.toString() ?? "0");
   const [isPending, startTransition] = useTransition();
 
   const handleSave = () => {
@@ -81,8 +81,8 @@ export default function BetDialog({
   // Reset scores when dialog opens with new game
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && game) {
-      setScoreA(existingGuess?.guessA?.toString() ?? "");
-      setScoreB(existingGuess?.guessB?.toString() ?? "");
+      setScoreA(existingGuess?.guessA?.toString() ?? "0");
+      setScoreB(existingGuess?.guessB?.toString() ?? "0");
     }
     onOpenChange(isOpen);
   };

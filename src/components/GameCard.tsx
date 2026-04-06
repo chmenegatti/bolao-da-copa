@@ -24,13 +24,14 @@ interface GameCardProps {
     pointsEarned: number | null;
   };
   onBet?: (game: GameCardProps["game"]) => void;
+  canPlaceBets: boolean;
 }
 
-export default function GameCard({ game, guess, onBet }: GameCardProps) {
+export default function GameCard({ game, guess, onBet, canPlaceBets }: GameCardProps) {
   const open = isBettingOpen(new Date(game.datetime));
   const hasFinalScore = game.scoreA !== null && game.scoreB !== null;
   const isFinished = game.status === "FINISHED" || hasFinalScore;
-  const canBet = open && !isFinished;
+  const canBet = open && !isFinished && canPlaceBets;
 
   return (
     <Card className="overflow-hidden border-border/60 hover:shadow-md transition-shadow animate-fade-in">
@@ -138,6 +139,11 @@ export default function GameCard({ game, guess, onBet }: GameCardProps) {
               <Lock className="h-4 w-4 mr-2" />
               Partida encerrada
             </Button>
+          ) : !canPlaceBets ? (
+            <div className="flex items-center justify-center gap-2 rounded-lg bg-amber-500/10 py-2 text-sm text-amber-700 dark:text-amber-300">
+              <Lock className="h-4 w-4" />
+              Pagamento pendente
+            </div>
           ) : (
             <div className="flex items-center justify-center gap-2 rounded-lg bg-destructive/10 py-2 text-sm text-destructive">
               <Lock className="h-4 w-4" />

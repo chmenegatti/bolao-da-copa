@@ -135,8 +135,8 @@ export default function HelpPage() {
           <div className="grid grid-cols-1 gap-3">
             <div className="text-center p-4 rounded-lg border-2 border-emerald-300 bg-emerald-50">
               <PointsBadge points={5} variant="default" />
-              <p className="font-bold mt-2 text-sm">Gols do Perdedor</p>
-              <p className="text-xs text-muted-foreground mt-1">Errou o vencedor, mas acertou os gols do time que perdeu</p>
+              <p className="font-bold mt-2 text-sm">Gols de um Time com Vencedor Errado</p>
+              <p className="text-xs text-muted-foreground mt-1">Errou o vencedor, mas acertou um placar exato de um time</p>
             </div>
           </div>
 
@@ -178,11 +178,11 @@ export default function HelpPage() {
                 variant="default"
               />
               <ExampleCard
-                label="Brasil 3 × 1 Argentina"
-                real="3 × 1"
-                guess="0 × 1"
+                label="Coritiba 1 × 1 Fluminense"
+                real="1 × 1"
+                guess="1 × 3"
                 points={5}
-                description="Errou o vencedor, mas acertou os gols do time que perdeu."
+                description="Errou o vencedor, mas acertou um dos placares. 5 pontos."
                 variant="default"
               />
               <ExampleCard
@@ -390,7 +390,7 @@ export default function HelpPage() {
                   <td className="py-2 text-right"><PointsBadge points={15} variant="bronze" /></td>
                 </tr>
                 <tr>
-                  <td className="py-2 pr-4">Gols do perdedor</td>
+                  <td className="py-2 pr-4">Gols de um time com vencedor errado</td>
                   <td className="py-2 text-right"><PointsBadge points={5} variant="default" /></td>
                 </tr>
                 <tr>

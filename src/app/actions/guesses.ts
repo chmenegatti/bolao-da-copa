@@ -4,12 +4,17 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getRequiredUser } from "@/lib/auth-helpers";
 import { canUserPlaceGuess } from "@/lib/game-logic";
+import { PAYMENT_PENDING_MESSAGE } from "@/lib/payment";
 import { revalidatePath } from "next/cache";
 
 const MAX_SCORE = 30;
 
 export async function saveGuess(matchId: string, guessA: number, guessB: number) {
   const user = await getRequiredUser();
+
+  if (!user.paymentConfirmed) {
+    return { error: PAYMENT_PENDING_MESSAGE };
+  }
 
   if (
     guessA < 0 ||

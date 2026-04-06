@@ -29,8 +29,12 @@ describe("calculateGuessPoints", () => {
     expect(calculateGuessPoints(1, 1, 2, 2)).toBe(18);
   });
 
-  it("retorna 0 para empate com apenas um placar exato", () => {
-    expect(calculateGuessPoints(2, 1, 2, 2)).toBe(0);
+  it("retorna 5 quando erra o vencedor, mas acerta um placar em empate", () => {
+    expect(calculateGuessPoints(2, 1, 2, 2)).toBe(5);
+  });
+
+  it("retorna 5 para o caso 1x3 contra 1x1", () => {
+    expect(calculateGuessPoints(1, 3, 1, 1)).toBe(5);
   });
 
   // ── 15 pts: vencedor seco ──────────────────────────────────────────────
@@ -43,11 +47,11 @@ describe("calculateGuessPoints", () => {
   });
 
   // ── 5 pts: gols isolados ───────────────────────────────────────────────
-  it("retorna 5 quando erra o vencedor, mas acerta os gols do perdedor", () => {
+  it("retorna 5 quando erra o vencedor, mas acerta um placar exato", () => {
     expect(calculateGuessPoints(0, 1, 3, 1)).toBe(5);
   });
 
-  it("retorna 0 quando erra o vencedor e não acerta os gols do perdedor", () => {
+  it("retorna 0 quando erra o vencedor e não acerta nenhum placar", () => {
     expect(calculateGuessPoints(1, 3, 3, 1)).toBe(0);
   });
 

@@ -1,26 +1,66 @@
 name: palpite-perfeito-local
 
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: palpite-local-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-palpite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-palpite}
+      POSTGRES_DB: ${POSTGRES_DB:-palpite_local}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - nemesis-starter_nemesis
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
       target: builder
       args:
-        DATABASE_URL: file:./prisma/dev.db
+        DATABASE_URL: postgresql://palpite:palpite@db:5432/palpite_local?schema=public
     container_name: palpite-local
     restart: unless-stopped
     environment:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
       PORT: 3000
-      DATABASE_URL: file:./prisma/dev.db
+      DATABASE_URL: postgresql://${POSTGRES_USER:-palpite}:${POSTGRES_PASSWORD:-palpite}@db:5432/${POSTGRES_DB:-palpite_local}?schema=public
       ADMIN_PASS: ${ADMIN_PASS}
       AUTH_SECRET: ${AUTH_SECRET}
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
-    command: sh -lc "npx prisma migrate deploy && npm run start"
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3010}
+      LEGACY_SQLITE_PATH: /legacy-data/dev.db
+    volumes:
+      - ./prisma:/legacy-data:ro
+    depends_on:
+      - db
+    command:
+      - sh
+      - -lc
+      - |
+          until npx prisma db push --skip-generate --accept-data-loss; do
+            echo "Aguardando o Postgres local..."
+            sleep 2
+          done
+
+          npx tsx ./scripts/import-sqlite-to-postgres.ts
+          cd .next/standalone
+          exec node server.js
     ports:
-      - "${LOCAL_PORT:-3000}:3000"
+      - "${LOCAL_PORT:-3010}:3000"
+    networks:
+      - nemesis-starter_nemesis
     healthcheck:
       test:
         ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))\""]
@@ -28,3 +68,10 @@ services:
       timeout: 3s
       retries: 12
       start_period: 20s
+
+volumes:
+  db-data:
+
+networks:
+  nemesis-starter_nemesis:
+    external: true

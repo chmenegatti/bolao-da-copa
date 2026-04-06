@@ -23,7 +23,32 @@ if [[ -z "${ADMIN_PASS:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${POSTGRES_USER:-}" ]]; then
+  echo "POSTGRES_USER precisa estar definido no ambiente de deploy" >&2
+  exit 1
+fi
+
+if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
+  echo "POSTGRES_PASSWORD precisa estar definido no ambiente de deploy" >&2
+  exit 1
+fi
+
+if [[ -z "${POSTGRES_DB:-}" ]]; then
+  echo "POSTGRES_DB precisa estar definido no ambiente de deploy" >&2
+  exit 1
+fi
+
+if [[ -z "${DATABASE_URL:-}" ]]; then
+  DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public"
+fi
+
+export DATABASE_URL
+export POSTGRES_USER
+export POSTGRES_PASSWORD
+export POSTGRES_DB
+
 docker compose -f "$COMPOSE_FILE" up -d proxy
+docker compose -f "$COMPOSE_FILE" up -d db
 
 current_slot="blue"
 if [[ -f "$UPSTREAM_FILE" ]] && grep -q "app-green:3000" "$UPSTREAM_FILE"; then
@@ -40,8 +65,6 @@ echo "Slot atual: $current_slot"
 echo "Slot de deploy: $next_slot"
 
 docker compose -f "$COMPOSE_FILE" pull "app-$next_slot"
-
-docker compose -f "$COMPOSE_FILE" run --rm --no-deps --user root --entrypoint sh "app-$next_slot" -lc "mkdir -p /data && chown -R node:node /data && ./node_modules/.bin/prisma migrate deploy --schema ./prisma/schema.prisma"
 
 docker compose -f "$COMPOSE_FILE" up -d --no-deps "app-$next_slot"
 
