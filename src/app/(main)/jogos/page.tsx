@@ -16,7 +16,15 @@ export default async function GamesPage() {
       orderBy: { datetime: "asc" },
     }),
     prisma.guess.findMany({
-      where: { userId: user.id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: [{ matchId: "asc" }, { createdAt: "asc" }],
     }),
   ]);
 
@@ -31,13 +39,28 @@ export default async function GamesPage() {
     status: m.status,
   }));
 
-  const serializedGuesses = guesses.map((g) => ({
-    id: g.id,
-    matchId: g.matchId,
-    guessA: g.guessA,
-    guessB: g.guessB,
-    pointsEarned: g.pointsEarned,
-  }));
+  const userGuesses = guesses
+    .filter((g) => g.userId === user.id)
+    .map((g) => ({
+      id: g.id,
+      userId: g.userId,
+      matchId: g.matchId,
+      guessA: g.guessA,
+      guessB: g.guessB,
+      pointsEarned: g.pointsEarned,
+    }));
+
+  const opponentGuesses = guesses
+    .filter((g) => g.userId !== user.id)
+    .map((g) => ({
+      id: g.id,
+      userId: g.userId,
+      userName: g.user.name,
+      matchId: g.matchId,
+      guessA: g.guessA,
+      guessB: g.guessB,
+      pointsEarned: g.pointsEarned,
+    }));
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -62,7 +85,8 @@ export default async function GamesPage() {
       )}
       <GamesList
         matches={serializedMatches}
-        guesses={serializedGuesses}
+        guesses={userGuesses}
+        opponentGuesses={opponentGuesses}
         canPlaceBets={user.paymentConfirmed}
       />
     </div>
