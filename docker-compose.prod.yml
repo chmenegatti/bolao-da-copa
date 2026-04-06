@@ -60,7 +60,7 @@ services:
             sleep 2
           done
 
-          npm run -s db:import:legacy
+          npx tsx ./scripts/import-sqlite-to-postgres.ts
           cd .next/standalone
           exec node server.js
     healthcheck:
@@ -100,7 +100,7 @@ services:
             sleep 2
           done
 
-          npm run -s db:import:legacy
+          npx tsx ./scripts/import-sqlite-to-postgres.ts
           cd .next/standalone
           exec node server.js
     healthcheck:
