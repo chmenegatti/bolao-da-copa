@@ -82,4 +82,6 @@ fi
 
 docker compose -f "$COMPOSE_FILE" exec -T app sh -lc "ADMIN_PASS=\"$DEV_ADMIN_PASS\" npm run -s prisma:seed:admin"
 
+docker compose -f "$COMPOSE_FILE" exec -T proxy nginx -s reload
+
 echo "Deploy da branch develop concluído"
