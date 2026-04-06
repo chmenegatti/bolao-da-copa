@@ -1745,17 +1745,17 @@ function UserFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         key={`${title}-${user?.id ?? "new"}`}
-        className="overflow-hidden rounded-2xl border p-0 shadow-2xl sm:max-w-xl lg:max-w-2xl"
+        className="overflow-hidden rounded-3xl border p-0 shadow-2xl max-w-[calc(100%-1rem)] sm:max-w-xl lg:max-w-2xl"
       >
-        <DialogHeader className="border-b bg-muted/30 px-6 py-5 text-left">
-          <DialogTitle className="font-display text-xl">{title}</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+        <DialogHeader className="border-b bg-muted/30 px-4 py-5 text-left sm:px-6">
+          <DialogTitle className="font-display text-xl leading-tight">{title}</DialogTitle>
+          <p className="text-sm leading-relaxed text-muted-foreground">
             Preencha os dados abaixo para criar ou atualizar o usuário.
           </p>
         </DialogHeader>
         <form action={onSubmit}>
-          <div className="grid gap-4 px-6 py-5 sm:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid gap-5 px-4 py-5 sm:grid-cols-2 sm:px-6 sm:py-6">
+            <div className="space-y-2.5">
               <Label htmlFor="name">Nome</Label>
               <Input
                 id="name"
@@ -1765,7 +1765,7 @@ function UserFormDialog({
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -1776,7 +1776,7 @@ function UserFormDialog({
                 required
               />
             </div>
-            <div className="space-y-2 sm:col-span-2">
+            <div className="space-y-2.5 sm:col-span-2">
               <Label htmlFor="password">
                 Senha{!requirePassword && " (deixe em branco para manter)"}
               </Label>
@@ -1803,7 +1803,7 @@ function UserFormDialog({
               </div>
             </div>
 
-            <div className="space-y-2 sm:col-span-2">
+            <div className="space-y-2.5 sm:col-span-2">
               <Label htmlFor="confirmPassword">
                 Confirmar senha{!requirePassword && " (deixe em branco para manter)"}
               </Label>
@@ -1830,7 +1830,7 @@ function UserFormDialog({
               </div>
             </div>
 
-            <div className="space-y-2 sm:col-span-2">
+            <div className="space-y-2.5 sm:col-span-2">
               <Label htmlFor="role">Papel</Label>
               <select
                 id="role"
@@ -1843,7 +1843,7 @@ function UserFormDialog({
               </select>
             </div>
           </div>
-          <DialogFooter className="border-t bg-muted/20 px-6 py-4">
+          <DialogFooter className="border-t bg-muted/20 px-4 py-4 sm:px-6 sm:py-5 mx-0! mb-0! gap-3 sm:flex-row sm:justify-end">
             <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
