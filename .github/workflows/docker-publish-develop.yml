@@ -51,7 +51,9 @@ jobs:
     needs: build-and-push
     runs-on: [self-hosted, linux]
     env:
-      DEV_DATABASE_URL: file:/data/palpite-dev.db
+      POSTGRES_USER: ${{ secrets.DEV_POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.DEV_POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ vars.DEV_POSTGRES_DB }}
       DEV_ADMIN_PASS: ${{ secrets.DEV_ADMIN_PASS }}
       DEV_AUTH_SECRET: ${{ secrets.DEV_AUTH_SECRET }}
       DEV_NEXTAUTH_URL: ${{ vars.DEV_NEXTAUTH_URL }}

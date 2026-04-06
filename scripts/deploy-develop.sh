@@ -10,8 +10,23 @@ if [[ -z "${DEV_APP_IMAGE:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${POSTGRES_USER:-}" ]]; then
+  echo "POSTGRES_USER precisa estar definido no ambiente de deploy" >&2
+  exit 1
+fi
+
+if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
+  echo "POSTGRES_PASSWORD precisa estar definido no ambiente de deploy" >&2
+  exit 1
+fi
+
+if [[ -z "${POSTGRES_DB:-}" ]]; then
+  echo "POSTGRES_DB precisa estar definido no ambiente de deploy" >&2
+  exit 1
+fi
+
 if [[ -z "${DEV_DATABASE_URL:-}" ]]; then
-  DEV_DATABASE_URL="file:/data/palpite-dev.db"
+  DEV_DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public"
 fi
 
 if [[ -z "${DEV_NEXTAUTH_URL:-}" ]]; then
@@ -26,6 +41,9 @@ fi
 
 export DEV_DATABASE_URL
 export DEV_NEXTAUTH_URL
+export POSTGRES_USER
+export POSTGRES_PASSWORD
+export POSTGRES_DB
 
 cd "$PROJECT_ROOT"
 
@@ -39,11 +57,9 @@ if [[ -z "${DEV_ADMIN_PASS:-}" ]]; then
   exit 1
 fi
 
-docker compose -f "$COMPOSE_FILE" up -d proxy
+docker compose -f "$COMPOSE_FILE" up -d db proxy
 
 docker compose -f "$COMPOSE_FILE" pull app
-
-docker compose -f "$COMPOSE_FILE" run --rm --no-deps --user root --entrypoint sh app -lc "mkdir -p /data && chown -R node:node /data && ./node_modules/.bin/prisma migrate deploy --schema ./prisma/schema.prisma"
 
 docker compose -f "$COMPOSE_FILE" up -d --no-deps app
 
@@ -64,6 +80,6 @@ if [[ "$health_status" != "healthy" ]]; then
   exit 1
 fi
 
-docker compose -f "$COMPOSE_FILE" exec -T app sh -lc "npm run -s prisma:seed:admin"
+docker compose -f "$COMPOSE_FILE" exec -T app sh -lc "ADMIN_PASS=\"$DEV_ADMIN_PASS\" npm run -s prisma:seed:admin"
 
 echo "Deploy da branch develop concluído"

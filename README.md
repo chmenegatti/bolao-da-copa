@@ -85,7 +85,7 @@ O projeto já está preparado para rodar em Docker com `output: 'standalone'` e 
 | **Linguagem** | TypeScript 5 |
 | **Autenticação** | [NextAuth v5](https://authjs.dev) — JWT + Credentials |
 | **ORM** | [Prisma 6](https://prisma.io) |
-| **Banco** | SQLite (via `prisma/dev.db`) |
+| **Banco** | PostgreSQL 16 em container, com importação automática do legado SQLite |
 | **Estilização** | [Tailwind CSS 4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) |
 | **Componentes** | Radix UI, Lucide Icons, Sonner (toasts) |
 | **Datas/Fuso** | `date-fns` + `date-fns-tz` (America/Sao_Paulo) |
@@ -124,7 +124,7 @@ O projeto já está preparado para rodar em Docker com `output: 'standalone'` e 
 
 - **Node.js** ≥ 20
 - **npm** ≥ 10
-- **sqlite3** (linha de comando — para o script de backup)
+- **Docker** e **Docker Compose** para os ambientes locais/deploy
 
 ---
 
@@ -148,8 +148,8 @@ cp .env.example .env
 ### 3. Criar e popular o banco
 
 ```bash
-npx prisma migrate dev        # Executa as migrations
-npm run prisma:seed           # Popula com dados iniciais (opcional)
+npx prisma db push            # Cria/ajusta o schema no banco atual
+npm run prisma:seed:worldcup   # Popula com a base da Copa (opcional)
 ```
 
 ### 3.1 Seed de teste do Brasileirão
@@ -186,9 +186,11 @@ Antes disso, defina pelo menos:
 
 ```env
 APP_IMAGE=ghcr.io/seu-usuario/palpite-perfeito-next:latest
-DATABASE_URL=file:/data/palpite.db
 AUTH_SECRET=um_secret_forte
 NEXTAUTH_URL=https://seu-dominio
+POSTGRES_USER=palpite
+POSTGRES_PASSWORD=uma_senha_forte
+POSTGRES_DB=palpite_prod
 ```
 
 O Cloudflare Tunnel deve apontar para o proxy local, não para o app diretamente.
@@ -207,7 +209,9 @@ Ou diretamente:
 AUTH_SECRET=um_secret_forte docker compose -f docker-compose.local.yml up -d --build
 ```
 
-Esse compose sobe o container `app`, aplica `prisma migrate deploy` e publica a aplicação em `http://localhost:3000` por padrão. Se a porta já estiver ocupada na máquina em que você estiver, defina `LOCAL_PORT` antes de subir.
+Esse compose sobe o container `app`, sincroniza o schema no Postgres e publica a aplicação em `http://localhost:3000` por padrão. Se a porta já estiver ocupada na máquina em que você estiver, defina `LOCAL_PORT` antes de subir.
+
+O stack local agora também sobe um container PostgreSQL e, quando encontrar um banco SQLite legado, importa os dados automaticamente no primeiro start.
 
 ### 7. Deploy blue-green
 
@@ -216,6 +220,9 @@ Depois de publicar a imagem no registry, o workflow de deploy usa as `GitHub Var
 - `NEXTAUTH_URL` em Variables, com a URL pública do seu ambiente
 - `ADMIN_PASS` em Secrets, com a senha do administrador criada pelo seed
 - `AUTH_SECRET` em Secrets, com o segredo do NextAuth
+- `POSTGRES_USER` em Secrets ou Variables, com o usuário do banco do ambiente
+- `POSTGRES_PASSWORD` em Secrets, com a senha do banco do ambiente
+- `POSTGRES_DB` em Variables, com o nome do banco do ambiente
 
 Depois disso, o deploy roda automaticamente. Se quiser executar manualmente no servidor:
 
@@ -225,7 +232,7 @@ AUTH_SECRET=seu_secret \
 ./scripts/deploy-blue-green.sh
 ```
 
-O script alterna entre `app-blue` e `app-green`, aplica migrations, valida o healthcheck e troca o upstream do proxy sem derrubar o site.
+O script alterna entre `app-blue` e `app-green`, sincroniza o schema, valida o healthcheck e troca o upstream do proxy sem derrubar o site.
 
 O painel admin tem botões de seed para a Copa e para a base de teste do Brasileirão:
 
@@ -240,7 +247,9 @@ A branch `develop` tem um fluxo separado para testes de novas features. Ela sobe
 
 - proxy Nginx na porta `3000`
 - aplicação Next.js na porta `3002`
-- banco isolado em `file:/data/palpite-dev.db`
+- banco PostgreSQL isolado em container, na mesma rede do app
+
+Na primeira inicialização, o deploy procura um SQLite legado no volume antigo e importa tudo automaticamente para o novo banco.
 
 O deploy usa o workflow `.github/workflows/docker-publish-develop.yml` e o compose `docker-compose.develop.yml`.
 
@@ -250,6 +259,9 @@ Variáveis esperadas no ambiente da branch `develop`:
 DEV_NEXTAUTH_URL="http://localhost:3000"
 DEV_AUTH_SECRET="seu_secret_de_teste"
 DEV_ADMIN_PASS="senha_do_admin_de_teste"
+POSTGRES_USER="palpite"
+POSTGRES_PASSWORD="senha_forte"
+POSTGRES_DB="palpite_develop"
 ```
 
 Se você estiver rodando localmente, o stack fica acessível em `http://localhost:3000` e a aplicação interna escuta em `3002`.
@@ -261,8 +273,11 @@ Se você estiver rodando localmente, o stack fica acessível em `http://localhos
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-# Banco de dados
-DATABASE_URL="file:./prisma/dev.db"
+# Banco de dados PostgreSQL
+DATABASE_URL="postgresql://palpite:senha@localhost:5432/palpite?schema=public"
+POSTGRES_USER="palpite"
+POSTGRES_PASSWORD="senha"
+POSTGRES_DB="palpite"
 
 # NextAuth — gere um secret com: openssl rand -base64 32
 AUTH_SECRET="seu_secret_aqui"
@@ -281,13 +296,15 @@ ADMIN_PASS="Admin@2026#"
 
 ## 🗄️ Banco de dados
 
-O projeto usa **SQLite** com **Prisma ORM**. Os arquivos ficam em `prisma/`.
+O projeto usa **PostgreSQL** com **Prisma ORM**. O banco sobe em container no mesmo stack do ambiente.
+
+O SQLite antigo foi mantido apenas como origem de migração. Ele é importado automaticamente no primeiro start de cada ambiente Docker, e depois pode ser removido quando a migração estiver consolidada.
 
 ### Comandos úteis
 
 ```bash
-# Criar/aplicar migrations
-npx prisma migrate dev --name nome_da_migration
+# Sincronizar o schema atual com o banco
+npx prisma db push
 
 # Abrir o Prisma Studio (interface visual)
 npx prisma studio
@@ -295,8 +312,8 @@ npx prisma studio
 # Regenerar o client após alterar o schema
 npx prisma generate
 
-# Reset completo (⚠️ apaga todos os dados)
-npx prisma migrate reset --force
+# Reimportar um legado SQLite no Postgres atual
+npm run db:import:legacy
 
 # Seed de teste do Brasileirão 2026 (rodada 10)
 npm run prisma:seed:brasileirao-test
@@ -306,7 +323,7 @@ npm run prisma:seed:brasileirao-test
 
 ```
 User           → participantes (role: USER | ADMIN)
-Match          → partidas (status: PENDING | FINISHED)
+Match          → partidas (status: SCHEDULED | FINISHED)
 Goal           → gols de uma partida (player, team, minute)
 Guess          → palpite de partida por usuário
 TopScorerBet   → aposta no artilheiro (única por usuário)
@@ -318,7 +335,7 @@ TournamentResult → resultado oficial (artilheiro e campeão)
 
 No painel admin existe um botão de reset para reiniciar a competição antes de uma nova rodada ou evento.
 
-- Mantém as partidas cadastradas.
+- Mantém as partidas cadastradas quando o objetivo é só resetar a competição.
 - Remove gols, palpites, apostas especiais, resultados e login attempts.
 - Zera os pontos de todos os usuários.
 - Exige confirmação manual no painel para evitar limpeza acidental.
@@ -329,30 +346,7 @@ O helper compartilhado do reset também é usado pelo seed, mas no seed completo
 
 ## 💾 Backup automático
 
-O projeto inclui um script shell que realiza backup do banco SQLite **duas vezes por dia (08:00 e 20:00)**, mantendo os **14 backups mais recentes** (~1 semana).
-
-### Instalar o cron
-
-```bash
-# Instala a entrada no crontab do usuário atual
-./scripts/install-cron.sh
-```
-
-### Executar manualmente
-
-```bash
-./scripts/backup-db.sh
-```
-
-Os arquivos são salvos em `backups/palpite_YYYYMMDD_HHMMSS.db` e estão no `.gitignore`.
-
-### Verificar o cron
-
-```bash
-crontab -l
-# Saída esperada:
-# 0 8,20 * * * /path/scripts/backup-db.sh >> /var/log/palpite-backup.log 2>&1
-```
+O backup do ambiente PostgreSQL será a próxima etapa após a migração dos dados legados. O script atual de backup SQLite ficou apenas como referência histórica até a troca completa do fluxo de backup para `pg_dump`/snapshot do volume.
 
 ---
 

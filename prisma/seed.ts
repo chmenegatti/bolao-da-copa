@@ -1,18 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { PrismaBetterSQLite3 } from "@prisma/adapter-better-sqlite3";
 import { hash } from "bcryptjs";
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
+if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
-const adapter = new PrismaBetterSQLite3({
-  url: databaseUrl,
-});
-
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 const SEED_MODE = process.env.SEED_MODE ?? "worldcup";
 const DEFAULT_TEST_ADMIN_PASSWORD = "admin123";
 
