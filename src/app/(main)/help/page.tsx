@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import InfoRouteTabs from "@/components/InfoRouteTabs";
 import {
   Trophy,
   Crown,
@@ -73,6 +74,9 @@ export default function HelpPage() {
         <p className="text-muted-foreground mt-1">
           Tudo que você precisa saber para jogar e pontuar bem no Palpite Perfeito
         </p>
+        <div className="mt-4">
+          <InfoRouteTabs />
+        </div>
       </div>
 
       {/* Overview */}

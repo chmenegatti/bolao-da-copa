@@ -19,6 +19,7 @@ import {
   ChevronDown,
   User,
   Banknote,
+  Coins,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -60,6 +61,7 @@ export default function AppHeader({
   const userMenuLinks = [
     { href: "/my-bets", label: "Meus Palpites", icon: ListChecks },
     { href: "/help", label: "Como Funciona", icon: HelpCircle },
+    { href: "/premiacao", label: "Premiação", icon: Coins },
     ...(isAdmin
       ? [
         { href: "/admin", label: "Admin", icon: Shield },
