@@ -33,7 +33,9 @@ services:
       retries: 12
       start_period: 20s
     networks:
-      - appnet
+      appnet:
+        aliases:
+          - palpite-dev-db
 
   app:
     image: ${DEV_APP_IMAGE:-ghcr.io/OWNER/REPO:develop}
@@ -74,7 +76,9 @@ services:
       retries: 12
       start_period: 20s
     networks:
-      - appnet
+      appnet:
+        aliases:
+          - palpite-dev-app
 
 networks:
   appnet:

@@ -47,6 +47,8 @@ import {
   Crown,
   ChevronDown,
   X,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   finishMatch,
@@ -1736,18 +1738,24 @@ function UserFormDialog({
   submitLabel: string;
   requirePassword?: boolean;
 }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="overflow-hidden rounded-2xl border p-0 shadow-2xl sm:max-w-xl lg:max-w-2xl">
-        <DialogHeader className="border-b bg-muted/30 px-6 py-5 text-left">
-          <DialogTitle className="font-display text-xl">{title}</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+      <DialogContent
+        key={`${title}-${user?.id ?? "new"}`}
+        className="overflow-hidden rounded-3xl border p-0 shadow-2xl max-w-[calc(100%-1rem)] sm:max-w-xl lg:max-w-2xl"
+      >
+        <DialogHeader className="border-b bg-muted/30 px-4 py-5 text-left sm:px-6">
+          <DialogTitle className="font-display text-xl leading-tight">{title}</DialogTitle>
+          <p className="text-sm leading-relaxed text-muted-foreground">
             Preencha os dados abaixo para criar ou atualizar o usuário.
           </p>
         </DialogHeader>
         <form action={onSubmit}>
-          <div className="grid gap-4 px-6 py-5 sm:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid gap-5 px-4 py-5 sm:grid-cols-2 sm:px-6 sm:py-6">
+            <div className="space-y-2.5">
               <Label htmlFor="name">Nome</Label>
               <Input
                 id="name"
@@ -1757,7 +1765,7 @@ function UserFormDialog({
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -1768,20 +1776,61 @@ function UserFormDialog({
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2.5 sm:col-span-2">
               <Label htmlFor="password">
                 Senha{!requirePassword && " (deixe em branco para manter)"}
               </Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder={requirePassword ? "Mín. 6 caracteres" : "••••••"}
-                required={requirePassword}
-                minLength={requirePassword ? 6 : undefined}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder={requirePassword ? "Mín. 6 caracteres" : "••••••"}
+                  className="h-11 px-4 pr-12 text-base"
+                  required={requirePassword}
+                  minLength={requirePassword ? 6 : undefined}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowPassword((value) => !value)}
+                  aria-label={showPassword ? "Ocultar senha" : "Visualizar senha"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
+
+            <div className="space-y-2.5 sm:col-span-2">
+              <Label htmlFor="confirmPassword">
+                Confirmar senha{!requirePassword && " (deixe em branco para manter)"}
+              </Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder={requirePassword ? "Repita a senha" : "••••••"}
+                  className="h-11 px-4 pr-12 text-base"
+                  required={requirePassword}
+                  minLength={requirePassword ? 6 : undefined}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowConfirmPassword((value) => !value)}
+                  aria-label={showConfirmPassword ? "Ocultar confirmação de senha" : "Visualizar confirmação de senha"}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 sm:col-span-2">
               <Label htmlFor="role">Papel</Label>
               <select
                 id="role"
@@ -1794,11 +1843,11 @@ function UserFormDialog({
               </select>
             </div>
           </div>
-          <DialogFooter className="border-t bg-muted/20 px-6 py-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="border-t bg-muted/20 px-4 py-4 sm:px-6 sm:py-5 mx-0! mb-0! gap-3 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
               {isPending ? "Salvando..." : submitLabel}
             </Button>
           </DialogFooter>
