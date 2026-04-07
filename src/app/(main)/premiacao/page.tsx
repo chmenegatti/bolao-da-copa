@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import InfoRouteTabs from "@/components/InfoRouteTabs";
 import {
   Banknote,
   Coins,
@@ -57,7 +56,6 @@ export default function PrizePage() {
           é premiar forte o campeão, manter o vice bem recompensado e ainda reservar
           um incentivo para o terceiro lugar. 🏆
         </p>
-        <InfoRouteTabs />
       </div>
 
       <Card className="border-emerald-200/70 bg-linear-to-br from-emerald-50 via-white to-amber-50">

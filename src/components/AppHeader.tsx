@@ -56,12 +56,12 @@ export default function AppHeader({
     { href: "/jogos", label: "Jogos", icon: Target },
     { href: "/ranking", label: "Ranking", icon: Trophy },
     { href: "/special-bets", label: "Apostas", icon: Crown },
+    { href: "/premiacao", label: "Premiação", icon: Coins },
   ];
 
   const userMenuLinks = [
     { href: "/my-bets", label: "Meus Palpites", icon: ListChecks },
     { href: "/help", label: "Como Funciona", icon: HelpCircle },
-    { href: "/premiacao", label: "Premiação", icon: Coins },
     ...(isAdmin
       ? [
         { href: "/admin", label: "Admin", icon: Shield },
