@@ -40,9 +40,6 @@ services:
       ADMIN_PASS: ${ADMIN_PASS}
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3010}
-      LEGACY_SQLITE_PATH: /legacy-data/dev.db
-    volumes:
-      - ./prisma:/legacy-data:ro
     depends_on:
       - db
     command:
@@ -53,8 +50,6 @@ services:
             echo "Aguardando o Postgres local..."
             sleep 2
           done
-
-          npx tsx ./scripts/import-sqlite-to-postgres.ts
           cd .next/standalone
           exec node server.js
     ports:

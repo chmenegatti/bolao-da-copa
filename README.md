@@ -298,8 +298,6 @@ ADMIN_PASS="Admin@2026#"
 
 O projeto usa **PostgreSQL** com **Prisma ORM**. O banco sobe em container no mesmo stack do ambiente.
 
-O SQLite antigo foi mantido apenas como origem de migração. Ele é importado automaticamente no primeiro start de cada ambiente Docker, e depois pode ser removido quando a migração estiver consolidada.
-
 ### Comandos úteis
 
 ```bash
@@ -311,9 +309,6 @@ npx prisma studio
 
 # Regenerar o client após alterar o schema
 npx prisma generate
-
-# Reimportar um legado SQLite no Postgres atual
-npm run db:import:legacy
 
 # Seed de teste do Brasileirão 2026 (rodada 10)
 npm run prisma:seed:brasileirao-test
@@ -346,7 +341,7 @@ O helper compartilhado do reset também é usado pelo seed, mas no seed completo
 
 ## 💾 Backup automático
 
-O backup do ambiente PostgreSQL será a próxima etapa após a migração dos dados legados. O script atual de backup SQLite ficou apenas como referência histórica até a troca completa do fluxo de backup para `pg_dump`/snapshot do volume.
+O backup do ambiente PostgreSQL será a próxima etapa após a migração para o novo banco. O fluxo atual ainda está centrado em `pg_dump`/snapshot do volume.
 
 ---
 
