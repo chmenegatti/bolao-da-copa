@@ -75,4 +75,6 @@ fi
 
 docker compose -f "$COMPOSE_FILE" exec -T app sh -lc "ADMIN_PASS=\"$ADMIN_PASS\" npm run -s prisma:seed:admin"
 
+bash "$PROJECT_ROOT/scripts/cleanup-dead-containers.sh" "palpite-perfeito"
+
 echo "Deploy de produção concluído"
