@@ -66,14 +66,17 @@
 | 🥇 **Definir campeão** | Define campeão/vice/placar da final e recalcula |
 | ♻️ **Resetar base** | Limpa palpites, gols, apostas especiais, resultados e pontos, preservando as partidas |
 
-### Deploy sem indisponibilidade
+### Deploy simplificado
 
-O projeto já está preparado para rodar em Docker com `output: 'standalone'` e deploy blue-green.
+O projeto roda em Docker com `output: 'standalone'` usando apenas dois serviços por ambiente:
 
-- A aplicação passa a subir dentro de um container Node minimalista.
-- Um proxy Nginx fica na frente da aplicação e recebe o tráfego do Cloudflare Tunnel.
-- O deploy sobe o slot novo, roda as migrations, espera o healthcheck e só depois troca o upstream.
-- Isso evita a janela clássica de indisponibilidade de `npm start` + restart manual.
+- `app`: container da aplicação Next.js
+- `db`: container PostgreSQL
+
+Ambientes:
+
+- produção: `http://localhost:8080`
+- develop: `http://localhost:8088`
 
 ---
 
@@ -85,7 +88,7 @@ O projeto já está preparado para rodar em Docker com `output: 'standalone'` e 
 | **Linguagem** | TypeScript 5 |
 | **Autenticação** | [NextAuth v5](https://authjs.dev) — JWT + Credentials |
 | **ORM** | [Prisma 6](https://prisma.io) |
-| **Banco** | PostgreSQL 16 em container, com importação automática do legado SQLite |
+| **Banco** | PostgreSQL 16 em container |
 | **Estilização** | [Tailwind CSS 4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) |
 | **Componentes** | Radix UI, Lucide Icons, Sonner (toasts) |
 | **Datas/Fuso** | `date-fns` + `date-fns-tz` (America/Sao_Paulo) |
@@ -176,10 +179,10 @@ npm run build
 npm run start
 ```
 
-### 6. Rodar com Docker
+### 6. Rodar com Docker (produção)
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d proxy app-blue
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 Antes disso, defina pelo menos:
@@ -193,7 +196,7 @@ POSTGRES_PASSWORD=uma_senha_forte
 POSTGRES_DB=palpite_prod
 ```
 
-O Cloudflare Tunnel deve apontar para o proxy local, não para o app diretamente.
+Isso publica a aplicação na porta `8080` e o banco de produção em container isolado.
 
 ### 6.1 Rodar localmente em container
 
@@ -209,11 +212,11 @@ Ou diretamente:
 AUTH_SECRET=um_secret_forte docker compose -f docker-compose.local.yml up -d --build
 ```
 
-Esse compose sobe o container `app`, sincroniza o schema no Postgres e publica a aplicação em `http://localhost:3000` por padrão. Se a porta já estiver ocupada na máquina em que você estiver, defina `LOCAL_PORT` antes de subir.
+Esse compose sobe o container `app`, sincroniza o schema no Postgres e publica a aplicação em `http://localhost:3010` por padrão. Se a porta já estiver ocupada na máquina em que você estiver, defina `LOCAL_PORT` antes de subir.
 
-O stack local agora também sobe um container PostgreSQL e, quando encontrar um banco SQLite legado, importa os dados automaticamente no primeiro start.
+O stack local também sobe um container PostgreSQL.
 
-### 7. Deploy blue-green
+### 7. Deploy produção
 
 Depois de publicar a imagem no registry, o workflow de deploy usa as `GitHub Variables` e `GitHub Secrets` do repositório:
 
@@ -229,10 +232,10 @@ Depois disso, o deploy roda automaticamente. Se quiser executar manualmente no s
 ```bash
 APP_IMAGE=ghcr.io/seu-usuario/palpite-perfeito-next:latest \
 AUTH_SECRET=seu_secret \
-./scripts/deploy-blue-green.sh
+./scripts/deploy-prod.sh
 ```
 
-O script alterna entre `app-blue` e `app-green`, sincroniza o schema, valida o healthcheck e troca o upstream do proxy sem derrubar o site.
+O script sobe `db` e `app`, sincroniza o schema, valida o healthcheck e executa o seed de admin.
 
 O painel admin tem botões de seed para a Copa e para a base de teste do Brasileirão:
 
@@ -245,18 +248,15 @@ O usuário admin é recriado automaticamente no deploy com a senha vinda de `ADM
 
 A branch `develop` tem um fluxo separado para testes de novas features. Ela sobe em Docker com:
 
-- proxy Nginx na porta `3000`
-- aplicação Next.js na porta `3002`
-- banco PostgreSQL isolado em container, na mesma rede do app
-
-Na primeira inicialização, o deploy procura um SQLite legado no volume antigo e importa tudo automaticamente para o novo banco.
+- aplicação Next.js na porta `8088`
+- banco PostgreSQL de develop em container isolado
 
 O deploy usa o workflow `.github/workflows/docker-publish-develop.yml` e o compose `docker-compose.develop.yml`.
 
 Variáveis esperadas no ambiente da branch `develop`:
 
 ```env
-DEV_NEXTAUTH_URL="http://localhost:3000"
+DEV_NEXTAUTH_URL="http://localhost:8088"
 DEV_AUTH_SECRET="seu_secret_de_teste"
 DEV_ADMIN_PASS="senha_do_admin_de_teste"
 POSTGRES_USER="palpite"
@@ -264,7 +264,7 @@ POSTGRES_PASSWORD="senha_forte"
 POSTGRES_DB="palpite_develop"
 ```
 
-Se você estiver rodando localmente, o stack fica acessível em `http://localhost:3000` e a aplicação interna escuta em `3002`.
+Se você estiver rodando localmente, o stack de develop fica acessível em `http://localhost:8088` e a aplicação interna escuta em `3000`.
 
 ---
 

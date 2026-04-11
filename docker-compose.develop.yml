@@ -1,20 +1,6 @@
 name: palpite-perfeito-develop
 
 services:
-  proxy:
-    image: nginx:1.27-alpine
-    container_name: palpite-dev-proxy
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./deploy/nginx/develop/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./deploy/nginx/develop/upstream.conf:/etc/nginx/conf.d/upstream.conf:ro
-    depends_on:
-      - app
-    networks:
-      - appnet
-
   db:
     image: postgres:16-alpine
     container_name: palpite-dev-db
@@ -33,9 +19,7 @@ services:
       retries: 12
       start_period: 20s
     networks:
-      appnet:
-        aliases:
-          - palpite-dev-db
+      - appnet
 
   app:
     image: ${DEV_APP_IMAGE:-ghcr.io/OWNER/REPO:develop}
@@ -44,13 +28,13 @@ services:
     environment:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
-      PORT: 3002
+      PORT: 3000
       DATABASE_URL: ${DEV_DATABASE_URL:-postgresql://${POSTGRES_USER:-palpite}:${POSTGRES_PASSWORD:-palpite}@db:5432/${POSTGRES_DB:-palpite_develop}?schema=public}
       ADMIN_PASS: ${DEV_ADMIN_PASS}
       AUTH_SECRET: ${DEV_AUTH_SECRET}
-      NEXTAUTH_URL: ${DEV_NEXTAUTH_URL:-http://localhost:3000}
-    expose:
-      - "3002"
+      NEXTAUTH_URL: ${DEV_NEXTAUTH_URL:-http://localhost:8088}
+    ports:
+      - "8088:3000"
     depends_on:
       - db
     command:
@@ -65,15 +49,13 @@ services:
           exec node server.js
     healthcheck:
       test:
-        ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3002/api/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+        ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))\""]
       interval: 10s
       timeout: 3s
       retries: 12
       start_period: 20s
     networks:
-      appnet:
-        aliases:
-          - palpite-dev-app
+      - appnet
 
 networks:
   appnet:
