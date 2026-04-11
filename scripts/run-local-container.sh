@@ -13,4 +13,4 @@ fi
 
 docker compose -f docker-compose.local.yml up -d --build
 
-echo "Container local iniciado em http://localhost:${LOCAL_PORT:-3000}"
+echo "Container local iniciado em http://localhost:${LOCAL_PORT:-3010}"

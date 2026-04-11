@@ -30,7 +30,7 @@ if [[ -z "${DEV_DATABASE_URL:-}" ]]; then
 fi
 
 if [[ -z "${DEV_NEXTAUTH_URL:-}" ]]; then
-  DEV_NEXTAUTH_URL="http://localhost:3000"
+  DEV_NEXTAUTH_URL="http://localhost:8088"
 elif [[ "${DEV_NEXTAUTH_URL}" != http://* && "${DEV_NEXTAUTH_URL}" != https://* ]]; then
   if [[ "${DEV_NEXTAUTH_URL}" == localhost:* || "${DEV_NEXTAUTH_URL}" == 127.0.0.1:* || "${DEV_NEXTAUTH_URL}" == 0.0.0.0:* ]]; then
     DEV_NEXTAUTH_URL="http://${DEV_NEXTAUTH_URL}"
@@ -57,7 +57,7 @@ if [[ -z "${DEV_ADMIN_PASS:-}" ]]; then
   exit 1
 fi
 
-docker compose -f "$COMPOSE_FILE" up -d db proxy
+docker compose -f "$COMPOSE_FILE" up -d db
 
 docker compose -f "$COMPOSE_FILE" pull app
 
@@ -81,7 +81,5 @@ if [[ "$health_status" != "healthy" ]]; then
 fi
 
 docker compose -f "$COMPOSE_FILE" exec -T app sh -lc "ADMIN_PASS=\"$DEV_ADMIN_PASS\" npm run -s prisma:seed:admin"
-
-docker compose -f "$COMPOSE_FILE" exec -T proxy nginx -s reload
 
 echo "Deploy da branch develop concluído"
