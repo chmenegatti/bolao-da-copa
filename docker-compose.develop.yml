@@ -49,9 +49,6 @@ services:
       ADMIN_PASS: ${DEV_ADMIN_PASS}
       AUTH_SECRET: ${DEV_AUTH_SECRET}
       NEXTAUTH_URL: ${DEV_NEXTAUTH_URL:-http://localhost:3000}
-      LEGACY_SQLITE_PATH: /legacy-data/palpite-dev.db
-    volumes:
-      - app-data:/legacy-data:ro
     expose:
       - "3002"
     depends_on:
@@ -64,8 +61,6 @@ services:
             echo "Aguardando o Postgres do develop..."
             sleep 2
           done
-
-          npx tsx ./scripts/import-sqlite-to-postgres.ts
           cd .next/standalone
           exec node server.js
     healthcheck:
@@ -85,5 +80,4 @@ networks:
     driver: bridge
 
 volumes:
-  app-data:
   db-data:

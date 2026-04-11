@@ -7,17 +7,57 @@ import { Separator } from "@/components/ui/separator";
 export const dynamic = "force-dynamic";
 
 export default async function RankingPage() {
-  const users: { id: string; name: string; totalPoints: number }[] = await prisma.user.findMany({
+  const users = await prisma.user.findMany({
     where: { name: { not: "Administrador" } },
-    orderBy: { totalPoints: "desc" },
     select: {
       id: true,
       name: true,
       totalPoints: true,
+      createdAt: true,
+      guesses: {
+        select: {
+          pointsEarned: true,
+        },
+      },
+      topScorerBet: {
+        select: {
+          pointsEarned: true,
+        },
+      },
+      championBet: {
+        select: {
+          pointsEarned: true,
+        },
+      },
     },
   });
 
-  const top3 = users.slice(0, 3);
+  const rankedUsers = users
+    .map((user) => {
+      const exactScoreHits = user.guesses.filter((guess) => guess.pointsEarned === 25).length;
+      const highAccuracyHits = user.guesses.filter((guess) => guess.pointsEarned === 20).length;
+      const specialPoints =
+        (user.topScorerBet?.pointsEarned ?? 0) + (user.championBet?.pointsEarned ?? 0);
+
+      return {
+        ...user,
+        exactScoreHits,
+        highAccuracyHits,
+        specialPoints,
+      };
+    })
+    .sort((a, b) => {
+      if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+      if (b.exactScoreHits !== a.exactScoreHits) return b.exactScoreHits - a.exactScoreHits;
+      if (b.highAccuracyHits !== a.highAccuracyHits) return b.highAccuracyHits - a.highAccuracyHits;
+      if (b.specialPoints !== a.specialPoints) return b.specialPoints - a.specialPoints;
+      if (a.createdAt.getTime() !== b.createdAt.getTime()) {
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      }
+      return a.name.localeCompare(b.name, "pt-BR");
+    });
+
+  const top3 = rankedUsers.slice(0, 3);
 
   const podiumStyles = [
     "bg-gradient-to-br from-yellow-400 to-amber-500 text-white",
@@ -35,7 +75,8 @@ export default async function RankingPage() {
           Ranking
         </h1>
         <p className="text-muted-foreground mt-1">
-          Classificação geral por pontos
+          Classificação geral por pontos. Desempates usam placares exatos, acertos de 20 pts,
+          apostas especiais e antiguidade no bolão.
         </p>
       </div>
 
@@ -108,7 +149,7 @@ export default async function RankingPage() {
 
       {/* Full ranking list */}
       <div className="space-y-2">
-        {users.map((user, index) => (
+        {rankedUsers.map((user, index) => (
           <Card
             key={user.id}
             className={`flex items-center justify-between px-4 py-3 animate-fade-in ${index < 3 ? "border-gold/30" : ""

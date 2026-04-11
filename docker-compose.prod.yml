@@ -44,9 +44,6 @@ services:
       ADMIN_PASS: ${ADMIN_PASS}
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:8080}
-      LEGACY_SQLITE_PATH: /legacy-data/palpite.db
-    volumes:
-      - app-data:/legacy-data:ro
     expose:
       - "3000"
     depends_on:
@@ -59,8 +56,6 @@ services:
             echo "Aguardando o Postgres de produção..."
             sleep 2
           done
-
-          npx tsx ./scripts/import-sqlite-to-postgres.ts
           cd .next/standalone
           exec node server.js
     healthcheck:
@@ -84,9 +79,6 @@ services:
       ADMIN_PASS: ${ADMIN_PASS}
       AUTH_SECRET: ${AUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:8080}
-      LEGACY_SQLITE_PATH: /legacy-data/palpite.db
-    volumes:
-      - app-data:/legacy-data:ro
     expose:
       - "3000"
     depends_on:
@@ -99,8 +91,6 @@ services:
             echo "Aguardando o Postgres de produção..."
             sleep 2
           done
-
-          npx tsx ./scripts/import-sqlite-to-postgres.ts
           cd .next/standalone
           exec node server.js
     healthcheck:
@@ -118,5 +108,4 @@ networks:
     driver: bridge
 
 volumes:
-  app-data:
   db-data:
