@@ -38,13 +38,9 @@ if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
   exit 1
 fi
 
-if [[ -z "${POSTGRES_DB:-}" ]]; then
-  echo "POSTGRES_DB não definido"
-  exit 1
-fi
-
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@bolao.com}"
 DB_SECRET_NAME="${DB_SECRET_NAME:-pg-auth-prod}"
+DB_NAME="${DB_NAME:-palpite_prod}"
 DB_SERVICE_HOST="${DB_SERVICE_HOST:-${CLUSTER_NAME}-rw}"
 
 APP_HOST="${NEXTAUTH_URL#*://}"
@@ -91,7 +87,7 @@ helm upgrade --install palpite-app k8s/charts/palpite-app \
   --set-string image.tag="${APP_IMAGE##*:}" \
   --set-string database.secretName="$DB_SECRET_NAME" \
   --set-string database.host="$DB_SERVICE_HOST" \
-  --set-string database.name="$POSTGRES_DB" \
+  --set-string database.name="$DB_NAME" \
   --set database.port=5432 \
   --set-string env.NEXTAUTH_URL="$NEXTAUTH_URL" \
   --set-string env.ADMIN_EMAIL="$ADMIN_EMAIL" \
