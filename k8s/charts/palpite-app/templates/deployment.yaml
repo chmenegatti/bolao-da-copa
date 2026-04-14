@@ -33,6 +33,12 @@ spec:
                   name: palpite-app-secret
                   key: AUTH_SECRET
 
+            - name: ADMIN_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: palpite-app-secret
+                  key: ADMIN_PASS
+
             - name: ADMIN_EMAIL
               value: {{ .Values.env.ADMIN_EMAIL | quote }}
 

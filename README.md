@@ -247,7 +247,7 @@ O painel admin tem botões de seed para a Copa e para a base de teste do Brasile
 - `Seed Copa` recria a base da Copa do Mundo.
 - `Seed Teste` recria a base de teste do Brasileirão.
 
-O usuário admin é recriado automaticamente no deploy com a senha vinda de `ADMIN_PASS`.
+O usuário admin é recriado automaticamente no deploy com a senha vinda de `ADMIN_PASS`, que também é injetada como segredo no pod da aplicação para que os seeds do painel administrativo funcionem.
 
 ### 7.1 Deploy da branch `develop`
 

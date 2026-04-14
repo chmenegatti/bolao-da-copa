@@ -23,3 +23,4 @@ env:
 
 secrets:
   AUTH_SECRET: "diUJLjXKH//qicYi6C3VsYsjvQWcx/9qmE7yEeQq9f8="
+  ADMIN_PASS: ""
