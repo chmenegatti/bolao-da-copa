@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# install-cron.sh — Instala o cron de backup automático (2×/dia: 08:00 e 20:00)
+# install-cron.sh — Instala o cron de backup automático do PostgreSQL (2×/dia: 08:00 e 20:00)
 # =============================================================================
 
 set -euo pipefail
