@@ -240,7 +240,7 @@ POSTGRES_DB=palpite_prod \
 ./scripts/deploy-prod.sh
 ```
 
-O script aplica o cluster PostgreSQL no namespace `palpite-prod`, aguarda o banco ficar pronto, instala o ingress e sobe o app via Helm. Depois, roda migrations e o seed do admin dentro do pod da aplicação.
+O script aplica o cluster PostgreSQL no namespace `palpite-prod`, aguarda o banco ficar pronto, instala o ingress e sobe o app via Helm. Depois, sincroniza o schema com `prisma db push` e roda o seed do admin dentro do pod da aplicação.
 
 O painel admin tem botões de seed para a Copa e para a base de teste do Brasileirão:
 
@@ -346,7 +346,7 @@ O helper compartilhado do reset também é usado pelo seed, mas no seed completo
 
 ## 💾 Backup automático
 
-O backup do ambiente PostgreSQL será a próxima etapa após a migração para o novo banco. O fluxo atual ainda está centrado em `pg_dump`/snapshot do volume.
+O backup do ambiente PostgreSQL usa `pg_dump` via `scripts/backup-db.sh`, com retenção dos últimos 14 arquivos e agendamento via `scripts/install-cron.sh`.
 
 ---
 
