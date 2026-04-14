@@ -91,6 +91,7 @@ helm upgrade --install palpite-app k8s/charts/palpite-app \
   --set database.port=5432 \
   --set-string env.NEXTAUTH_URL="$NEXTAUTH_URL" \
   --set-string env.ADMIN_EMAIL="$ADMIN_EMAIL" \
+  --set-string secrets.ADMIN_PASS="$ADMIN_PASS" \
   --set-string secrets.AUTH_SECRET="$AUTH_SECRET"
 
 echo "⏳ Aguardando rollout..."
