@@ -68,15 +68,11 @@
 
 ### Deploy simplificado
 
-O projeto roda em Docker com `output: 'standalone'` usando apenas dois serviços por ambiente:
+O projeto foi consolidado para deploy em Kubernetes com Helm. O build da imagem continua sendo feito via Docker no pipeline, mas o runtime e o deploy passam exclusivamente pelo cluster.
 
-- `app`: container da aplicação Next.js
-- `db`: container PostgreSQL
+Ambiente ativo:
 
-Ambientes:
-
-- produção: `http://localhost:8080`
-- develop: `http://localhost:8088`
+- produção: namespace `palpite-prod`, exposto pelo ingress do cluster
 
 ---
 
@@ -127,7 +123,7 @@ Ambientes:
 
 - **Node.js** ≥ 20
 - **npm** ≥ 10
-- **Docker** e **Docker Compose** para os ambientes locais/deploy
+- **kubectl** e **helm** para aplicar o deploy no cluster
 
 ---
 
@@ -179,44 +175,7 @@ npm run build
 npm run start
 ```
 
-### 6. Rodar com Docker (produção)
-
-```bash
-docker compose -f docker-compose.prod.yml up -d --build
-```
-
-Antes disso, defina pelo menos:
-
-```env
-APP_IMAGE=ghcr.io/seu-usuario/palpite-perfeito-next:latest
-AUTH_SECRET=um_secret_forte
-NEXTAUTH_URL=https://seu-dominio
-POSTGRES_USER=palpite
-POSTGRES_PASSWORD=uma_senha_forte
-POSTGRES_DB=palpite_prod
-```
-
-Isso publica a aplicação na porta `8080` e o banco de produção em container isolado.
-
-### 6.1 Rodar localmente em container
-
-Se a ideia for apenas subir na sua máquina pessoal, use este fluxo mais simples:
-
-```bash
-AUTH_SECRET=um_secret_forte ./scripts/run-local-container.sh
-```
-
-Ou diretamente:
-
-```bash
-AUTH_SECRET=um_secret_forte docker compose -f docker-compose.local.yml up -d --build
-```
-
-Esse compose sobe o container `app`, sincroniza o schema no Postgres e publica a aplicação em `http://localhost:3010` por padrão. Se a porta já estiver ocupada na máquina em que você estiver, defina `LOCAL_PORT` antes de subir.
-
-O stack local também sobe um container PostgreSQL.
-
-### 7. Deploy produção
+### 6. Deploy produção no K8s
 
 Depois de publicar a imagem no registry, o workflow de deploy usa `kubectl` e `helm` para aplicar o cluster PostgreSQL, o ingress e a aplicação. O fluxo lê as `GitHub Variables` e `GitHub Secrets` do repositório:
 
@@ -241,6 +200,7 @@ POSTGRES_DB=palpite_prod \
 ```
 
 O script aplica o cluster PostgreSQL no namespace `palpite-prod`, aguarda o banco ficar pronto, instala o ingress e sobe o app via Helm. Depois, sincroniza o schema com `prisma db push` e roda o seed do admin dentro do pod da aplicação.
+Em seguida, executa um smoke test em `/api/health` e `/auth` para validar que o deploy ficou acessível externamente.
 
 O painel admin tem botões de seed para a Copa e para a base de teste do Brasileirão:
 
@@ -248,29 +208,6 @@ O painel admin tem botões de seed para a Copa e para a base de teste do Brasile
 - `Seed Teste` recria a base de teste do Brasileirão.
 
 O usuário admin é recriado automaticamente no deploy com a senha vinda de `ADMIN_PASS`, que também é injetada como segredo no pod da aplicação para que os seeds do painel administrativo funcionem.
-
-### 7.1 Deploy da branch `develop`
-
-A branch `develop` tem um fluxo separado para testes de novas features. Ela sobe em Docker com:
-
-- aplicação Next.js na porta `8088`
-- banco PostgreSQL de develop em container isolado
-
-O deploy usa o workflow `.github/workflows/docker-publish-develop.yml` e o compose `docker-compose.develop.yml`.
-
-Variáveis esperadas no ambiente da branch `develop`:
-
-```env
-DEV_NEXTAUTH_URL="http://localhost:8088"
-DEV_AUTH_SECRET="seu_secret_de_teste"
-DEV_ADMIN_PASS="senha_do_admin_de_teste"
-POSTGRES_USER="palpite"
-POSTGRES_PASSWORD="senha_forte"
-POSTGRES_DB="palpite_develop"
-```
-
-Se você estiver rodando localmente, o stack de develop fica acessível em `http://localhost:8088` e a aplicação interna escuta em `3000`.
-
 ---
 
 ## 🔑 Variáveis de ambiente
@@ -280,9 +217,6 @@ Crie um arquivo `.env` na raiz do projeto:
 ```env
 # Banco de dados PostgreSQL
 DATABASE_URL="postgresql://palpite:senha@localhost:5432/palpite?schema=public"
-POSTGRES_USER="palpite"
-POSTGRES_PASSWORD="senha"
-POSTGRES_DB="palpite"
 
 # NextAuth — gere um secret com: openssl rand -base64 32
 AUTH_SECRET="seu_secret_aqui"
@@ -291,7 +225,7 @@ NEXTAUTH_SECRET="seu_secret_aqui"
 # URL base da aplicação
 NEXTAUTH_URL="http://localhost:3010"
 
-# Admin local do Docker
+# Admin local para seeds e painel administrativo
 ADMIN_PASS="Admin@2026#"
 ```
 

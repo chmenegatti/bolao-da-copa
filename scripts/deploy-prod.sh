@@ -116,4 +116,8 @@ echo "🧠 Rodando seed do admin..."
 kubectl exec -n "$NAMESPACE" "$POD" -- \
   sh -c "ADMIN_PASS=\"$ADMIN_PASS\" ADMIN_EMAIL=\"$ADMIN_EMAIL\" SEED_MODE=admin-only npx tsx prisma/seed.ts"
 
+echo "🔍 Executando smoke test..."
+
+bash "$PROJECT_ROOT/scripts/smoke-test.sh" "$NEXTAUTH_URL"
+
 echo "✅ Deploy finalizado"
