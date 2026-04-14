@@ -9,6 +9,8 @@ const prisma = new PrismaClient();
 const SEED_MODE = process.env.SEED_MODE ?? "worldcup";
 const DEFAULT_TEST_ADMIN_PASSWORD = "admin123";
 
+const email = process.env.ADMIN_EMAIL ?? "admin@bolao.com";
+
 type MatchSeed = {
   teamA: string;
   teamB: string;
@@ -43,7 +45,7 @@ if (!adminPasswordValue) {
 async function seedAdminUser(adminPasswordValue: string) {
   const hashedPassword = await hash(adminPasswordValue, 12);
   const admin = await prisma.user.upsert({
-    where: { email: "admin@bolao.com" },
+    where: { email },
     update: {
       name: "Administrador",
       password: hashedPassword,

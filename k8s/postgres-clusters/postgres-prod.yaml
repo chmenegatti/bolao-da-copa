@@ -1,0 +1,25 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: palpite-prod-db
+  namespace: palpite-prod
+spec:
+  instances: 2
+
+  storage:
+    size: 2Gi
+
+  bootstrap:
+    initdb:
+      database: palpite_prod
+      owner: palpite
+      secret:
+        name: pg-auth-prod
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

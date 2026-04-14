@@ -1,6 +1,6 @@
 apiVersion: v2
 name: palpite-app
-description: A Helm chart for Kubernetes
+description: Palpite Next.js App
 
 # A chart can be either an 'application' or a 'library' chart.
 #
