@@ -30,6 +30,13 @@ echo "🔎 Pegando pod..."
 
 POD=$(kubectl get pods -n $NAMESPACE -l app=palpite-app -o jsonpath="{.items[0].metadata.name}")
 
+echo "🗄️ Rodando migrations..."
+
+kubectl exec -n $NAMESPACE $POD -- \
+  sh -c "npx prisma migrate deploy"
+
+echo "✅ Migrations aplicadas"
+
 echo "🧠 Rodando seed do admin..."
 
 kubectl exec -n $NAMESPACE $POD -- \
