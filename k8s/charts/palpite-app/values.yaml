@@ -5,6 +5,12 @@ image:
   tag: latest
   pullPolicy: Always
 
+database:
+  secretName: pg-auth-prod
+  host: palpite-prod-db-rw
+  port: 5432
+  name: palpite_prod
+
 service:
   type: ClusterIP
   port: 80
@@ -13,7 +19,7 @@ service:
 env:
   NODE_ENV: production
   NEXTAUTH_URL: http://palpite.local
+  ADMIN_EMAIL: admin@bolao.com
 
 secrets:
-  DATABASE_URL: "postgresql://palpite:password@palpite-prod-db-rw.palpite-prod.svc.cluster.local:5432/palpite_prod"
   AUTH_SECRET: "diUJLjXKH//qicYi6C3VsYsjvQWcx/9qmE7yEeQq9f8="

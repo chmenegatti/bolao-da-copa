@@ -218,7 +218,7 @@ O stack local também sobe um container PostgreSQL.
 
 ### 7. Deploy produção
 
-Depois de publicar a imagem no registry, o workflow de deploy usa as `GitHub Variables` e `GitHub Secrets` do repositório:
+Depois de publicar a imagem no registry, o workflow de deploy usa `kubectl` e `helm` para aplicar o cluster PostgreSQL, o ingress e a aplicação. O fluxo lê as `GitHub Variables` e `GitHub Secrets` do repositório:
 
 - `NEXTAUTH_URL` em Variables, com a URL pública do seu ambiente
 - `ADMIN_PASS` em Secrets, com a senha do administrador criada pelo seed
@@ -231,11 +231,16 @@ Depois disso, o deploy roda automaticamente. Se quiser executar manualmente no s
 
 ```bash
 APP_IMAGE=ghcr.io/seu-usuario/palpite-perfeito-next:latest \
+NEXTAUTH_URL=https://seu-dominio \
 AUTH_SECRET=seu_secret \
+ADMIN_PASS=sua_senha_admin \
+POSTGRES_USER=palpite \
+POSTGRES_PASSWORD=sua_senha_banco \
+POSTGRES_DB=palpite_prod \
 ./scripts/deploy-prod.sh
 ```
 
-O script sobe `db` e `app`, sincroniza o schema, valida o healthcheck e executa o seed de admin.
+O script aplica o cluster PostgreSQL no namespace `palpite-prod`, aguarda o banco ficar pronto, instala o ingress e sobe o app via Helm. Depois, roda migrations e o seed do admin dentro do pod da aplicação.
 
 O painel admin tem botões de seed para a Copa e para a base de teste do Brasileirão:
 
