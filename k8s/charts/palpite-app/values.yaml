@@ -1,0 +1,19 @@
+replicaCount: 3
+
+image:
+  repository: ghcr.io/chmenegatti/bolao-da-copa
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+env:
+  NODE_ENV: production
+  NEXTAUTH_URL: http://palpite.local
+
+secrets:
+  DATABASE_URL: "postgresql://palpite:password@palpite-prod-db-rw.palpite-prod.svc.cluster.local:5432/palpite_prod"
+  AUTH_SECRET: "diUJLjXKH//qicYi6C3VsYsjvQWcx/9qmE7yEeQq9f8="
