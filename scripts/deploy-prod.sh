@@ -78,6 +78,8 @@ helm upgrade --install palpite-ingress k8s/charts/palpite-ingress \
   -n "$NAMESPACE" \
   --create-namespace \
   --set-string ingress.hosts[0].host="$APP_HOST" \
+  --set-string ingress.hosts[0].paths[0].path=/ \
+  --set-string ingress.hosts[0].paths[0].pathType=Prefix \
   --set-string ingress.className=traefik
 
 echo "📦 Atualizando aplicação via Helm..."
