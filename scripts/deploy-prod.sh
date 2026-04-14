@@ -99,7 +99,9 @@ kubectl rollout status deployment/palpite-app -n "$NAMESPACE" --timeout=120s
 
 echo "🔎 Pegando pod..."
 
-POD=$(kubectl get pods -n "$NAMESPACE" -l app=palpite-app -o jsonpath="{.items[0].metadata.name}")
+POD=$(kubectl get pods -n "$NAMESPACE" -l app=palpite-app --field-selector=status.phase=Running -o jsonpath="{.items[0].metadata.name}")
+
+kubectl wait -n "$NAMESPACE" --for=condition=Ready "pod/$POD" --timeout=120s
 
 echo "🗄️ Sincronizando schema..."
 
