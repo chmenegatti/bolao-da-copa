@@ -25,19 +25,44 @@ spec:
               value: {{ .Values.env.NODE_ENV }}
 
             - name: NEXTAUTH_URL
-              value: {{ .Values.env.NEXTAUTH_URL }}
-
-            - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: palpite-app-secret
-                  key: DATABASE_URL
+                  key: NEXTAUTH_URL
 
             - name: AUTH_SECRET
               valueFrom:
                 secretKeyRef:
                   name: palpite-app-secret
                   key: AUTH_SECRET
+
+            - name: ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: palpite-app-secret
+                  key: ADMIN_EMAIL
+
+            # 🔥 DB (CloudNativePG)
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: pg-auth-prod
+                  key: username
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pg-auth-prod
+                  key: password
+
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pg-auth-prod
+                  key: dbname
+
+            - name: DATABASE_URL
+              value: postgresql://$(DB_USER):$(DB_PASSWORD)@palpite-prod-db-rw:5432/$(DB_NAME)?schema=public
 
           readinessProbe:
             httpGet:
