@@ -6,7 +6,7 @@ export async function getSession() {
   return await auth();
 }
 
-export async function getRequiredUser() {
+export async function getRequiredUser({ skipMustChangePasswordCheck = false } = {}) {
   const session = await auth();
   if (!session?.user) {
     redirect("/auth");
@@ -21,11 +21,16 @@ export async function getRequiredUser() {
       role: true,
       paymentConfirmed: true,
       paymentConfirmedAt: true,
+      mustChangePassword: true,
     },
   });
 
   if (!user) {
     redirect("/auth");
+  }
+
+  if (!skipMustChangePasswordCheck && user.mustChangePassword) {
+    redirect("/change-password");
   }
 
   return user;

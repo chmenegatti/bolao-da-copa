@@ -19,9 +19,10 @@ model User {
   password        String
   role            Role             @default(USER)
   totalPoints     Int              @default(0)
-  paymentConfirmed Boolean          @default(false)
+  paymentConfirmed   Boolean          @default(false)
   paymentConfirmedAt DateTime?
-  createdAt       DateTime         @default(now())
+  mustChangePassword Boolean          @default(false)
+  createdAt          DateTime         @default(now())
   guesses         Guess[]
   topScorerBet    TopScorerBet?
   championBet     ChampionBet?

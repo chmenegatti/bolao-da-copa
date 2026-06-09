@@ -17,8 +17,12 @@ export default async function MainLayout({
 
   const profile = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { name: true, totalPoints: true, role: true },
+    select: { name: true, totalPoints: true, role: true, mustChangePassword: true },
   });
+
+  if (profile?.mustChangePassword) {
+    redirect("/change-password");
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
