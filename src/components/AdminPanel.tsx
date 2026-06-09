@@ -49,6 +49,7 @@ import {
   X,
   Eye,
   EyeOff,
+  KeyRound,
 } from "lucide-react";
 import {
   finishMatch,
@@ -58,6 +59,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  resetUserPassword,
   resetTournamentData,
   seedBrasileiraoTestData,
   seedWorldCupData,
@@ -1277,6 +1279,7 @@ function UsersTab({
 }) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
+  const [resetPassUser, setResetPassUser] = useState<User | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(users[0]?.id ?? null);
 
   const selectedUserIdForView =
@@ -1321,6 +1324,19 @@ function UsersTab({
         toast.error(result.error);
       } else {
         toast.success("Usuário excluído.");
+      }
+    });
+  };
+
+  const handleResetPassword = (tempPassword: string) => {
+    if (!resetPassUser) return;
+    startTransition(async () => {
+      const result = await resetUserPassword(resetPassUser.id, tempPassword);
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Senha temporária definida. O usuário deverá alterá-la no próximo login.");
+        setResetPassUser(null);
       }
     });
   };
@@ -1491,6 +1507,15 @@ function UsersTab({
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title="Redefinir senha temporária"
+                      onClick={() => setResetPassUser(user)}
+                      disabled={isPending}
+                    >
+                      <KeyRound className="h-4 w-4" />
+                    </Button>
                     {user.role !== "ADMIN" && (
                       <Button
                         variant="ghost"
@@ -1530,6 +1555,15 @@ function UsersTab({
         onSubmit={(formData) => editUser && handleUpdate(editUser.id, formData)}
         isPending={isPending}
         submitLabel="Salvar"
+      />
+
+      {/* Reset password dialog */}
+      <ResetPasswordDialog
+        open={!!resetPassUser}
+        onOpenChange={(open) => !open && setResetPassUser(null)}
+        userName={resetPassUser?.name ?? ""}
+        onSubmit={handleResetPassword}
+        isPending={isPending}
       />
     </div>
   );
@@ -1714,6 +1748,118 @@ function GuessesTab({ guesses }: { guesses: Guess[] }) {
         </div>
       </Card>
     </div>
+  );
+}
+
+// ==================== USER FORM DIALOG ====================
+
+// ==================== RESET PASSWORD DIALOG ====================
+
+function ResetPasswordDialog({
+  open,
+  onOpenChange,
+  userName,
+  onSubmit,
+  isPending,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  userName: string;
+  onSubmit: (tempPassword: string) => void;
+  isPending: boolean;
+}) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const tempPassword = (form.elements.namedItem("tempPassword") as HTMLInputElement).value;
+    const confirmPassword = (form.elements.namedItem("confirmTempPassword") as HTMLInputElement).value;
+    if (tempPassword !== confirmPassword) {
+      return;
+    }
+    onSubmit(tempPassword);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        key={`reset-pass-${userName}`}
+        className="overflow-hidden rounded-3xl border p-0 shadow-2xl max-w-[calc(100%-1rem)] sm:max-w-md"
+      >
+        <DialogHeader className="border-b bg-muted/30 px-4 py-5 text-left sm:px-6">
+          <DialogTitle className="font-display text-xl leading-tight flex items-center gap-2">
+            <KeyRound className="h-5 w-5 text-muted-foreground" />
+            Redefinir senha
+          </DialogTitle>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Defina uma senha temporária para <strong>{userName}</strong>. O usuário deverá alterá-la no próximo login.
+          </p>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-5 px-4 py-5 sm:px-6 sm:py-6">
+            <div className="space-y-2.5">
+              <Label htmlFor="tempPassword">Senha temporária</Label>
+              <div className="relative">
+                <Input
+                  id="tempPassword"
+                  name="tempPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mín. 6 caracteres"
+                  className="h-11 px-4 pr-12 text-base"
+                  required
+                  minLength={6}
+                  autoFocus
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2.5">
+              <Label htmlFor="confirmTempPassword">Confirmar senha temporária</Label>
+              <div className="relative">
+                <Input
+                  id="confirmTempPassword"
+                  name="confirmTempPassword"
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="Repita a senha temporária"
+                  className="h-11 px-4 pr-12 text-base"
+                  required
+                  minLength={6}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  aria-label={showConfirm ? "Ocultar confirmação" : "Mostrar confirmação"}
+                >
+                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="border-t bg-muted/20 px-4 py-4 sm:px-6 sm:py-5 mx-0! mb-0! gap-3 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
+              {isPending ? "Salvando..." : "Definir senha temporária"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

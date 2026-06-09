@@ -4,7 +4,9 @@ import { hash } from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { signIn } from "@/lib/auth";
+import { getRequiredUser } from "@/lib/auth-helpers";
 import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -73,4 +75,30 @@ export async function login(formData: FormData) {
     }
     throw error;
   }
+}
+
+export async function changePassword(formData: FormData) {
+  const user = await getRequiredUser({ skipMustChangePasswordCheck: true });
+
+  if (!user.mustChangePassword) {
+    return { error: "Ação não permitida." };
+  }
+
+  const newPassword = (formData.get("password") as string | null) ?? "";
+  const confirmPassword = (formData.get("confirmPassword") as string | null) ?? "";
+
+  if (newPassword.length < 6) {
+    return { error: "A nova senha deve ter pelo menos 6 caracteres." };
+  }
+  if (newPassword !== confirmPassword) {
+    return { error: "As senhas não coincidem." };
+  }
+
+  const hashed = await hash(newPassword, 12);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { password: hashed, mustChangePassword: false },
+  });
+
+  redirect("/");
 }

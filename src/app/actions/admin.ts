@@ -314,6 +314,29 @@ export async function deleteUser(userId: string) {
   return { success: true };
 }
 
+export async function resetUserPassword(userId: string, tempPassword: string) {
+  await requireAdmin();
+
+  if (!tempPassword || tempPassword.length < 6) {
+    return { error: "A senha temporária deve ter pelo menos 6 caracteres." };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true },
+  });
+  if (!user) return { error: "Usuário não encontrado." };
+
+  const hashed = await hash(tempPassword, 12);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashed, mustChangePassword: true },
+  });
+
+  revalidatePath("/admin");
+  return { success: true };
+}
+
 export async function setUserPaymentStatus(userId: string, paymentConfirmed: boolean) {
   await requireAdmin();
 
