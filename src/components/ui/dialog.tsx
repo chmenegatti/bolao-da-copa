@@ -7,8 +7,18 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
-function Dialog({ ...props }: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+function Dialog({ open, children, ...props }: DialogPrimitive.Root.Props) {
+  // base-ui 1.3.0 não desmonta o Popup quando `open` volta para `false` em modo
+  // controlado: a transição de saída fica presa em `data-ending-style` mesmo
+  // depois da animação `exit` terminar, e o diálogo continua visível ao salvar
+  // ou clicar no X. Todos os diálogos do app são controlados via `open` (não há
+  // DialogTrigger), então removemos o conteúdo da árvore quando fechado para
+  // garantir o unmount. `open === undefined` (não controlado) renderiza normal.
+  return (
+    <DialogPrimitive.Root data-slot="dialog" open={open} {...props}>
+      {open === false ? null : children}
+    </DialogPrimitive.Root>
+  )
 }
 
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
