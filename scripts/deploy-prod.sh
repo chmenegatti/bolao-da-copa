@@ -100,7 +100,19 @@ kubectl rollout status deployment/palpite-app -n "$NAMESPACE" --timeout=120s
 
 echo "🔎 Pegando pod..."
 
-POD=$(kubectl get pods -n "$NAMESPACE" -l app=palpite-app --field-selector=status.phase=Running -o jsonpath="{.items[0].metadata.name}")
+# Pega o pod mais recente em execução (o do novo rollout). Usar items[0] pode
+# capturar o pod antigo, que é terminado em seguida e faz o wait estourar.
+POD=$(kubectl get pods -n "$NAMESPACE" -l app=palpite-app \
+  --field-selector=status.phase=Running \
+  --sort-by=.metadata.creationTimestamp \
+  -o jsonpath="{.items[-1:].metadata.name}")
+
+if [ -z "$POD" ]; then
+  echo "❌ Nenhum pod em execução encontrado para palpite-app" >&2
+  exit 1
+fi
+
+echo "   Pod selecionado: $POD"
 
 kubectl wait -n "$NAMESPACE" --for=condition=Ready "pod/$POD" --timeout=120s
 
