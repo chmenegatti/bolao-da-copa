@@ -27,6 +27,7 @@ export default async function MainLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader
+        userId={session.user.id}
         userName={profile?.name ?? session.user.name}
         totalPoints={profile?.totalPoints ?? 0}
         isAdmin={profile?.role === "ADMIN"}

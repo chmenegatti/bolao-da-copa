@@ -20,17 +20,21 @@ import {
   User,
   Banknote,
   Coins,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { SUPER_EDITOR_USER_ID } from "@/lib/super-editor";
 
 interface AppHeaderProps {
+  userId: string;
   userName: string;
   totalPoints: number;
   isAdmin: boolean;
 }
 
 export default function AppHeader({
+  userId,
   userName,
   totalPoints,
   isAdmin,
@@ -61,6 +65,9 @@ export default function AppHeader({
 
   const userMenuLinks = [
     { href: "/my-bets", label: "Meus Palpites", icon: ListChecks },
+    ...(userId === SUPER_EDITOR_USER_ID
+      ? [{ href: "/editar-palpites", label: "Editar Palpites", icon: Pencil }]
+      : []),
     { href: "/help", label: "Como Funciona", icon: HelpCircle },
     ...(isAdmin
       ? [
