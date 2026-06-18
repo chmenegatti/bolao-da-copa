@@ -5,6 +5,7 @@ import { ChevronDown, Users, X } from "lucide-react";
 import GameCard from "@/components/GameCard";
 import BetDialog from "@/components/BetDialog";
 import { formatMatchDate, formatMatchDateKey, isBettingOpen } from "@/lib/timezone";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -163,9 +164,23 @@ export default function GamesList({ matches, guesses, opponentGuesses, canPlaceB
                                     {guess.guessA} × {guess.guessB}
                                   </p>
                                 </div>
-                                <span className="text-xs text-muted-foreground">
-                                  Palpite fechado
-                                </span>
+                                {guess.pointsEarned !== null ? (
+                                  <Badge
+                                    className={
+                                      guess.pointsEarned >= 25
+                                        ? "bg-success text-success-foreground"
+                                        : guess.pointsEarned > 0
+                                          ? "bg-warning text-warning-foreground"
+                                          : "bg-muted text-muted-foreground"
+                                    }
+                                  >
+                                    +{guess.pointsEarned} pts
+                                  </Badge>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground">
+                                    Palpite fechado
+                                  </span>
+                                )}
                               </div>
                             ))}
                           </div>
