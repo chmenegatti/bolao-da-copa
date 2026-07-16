@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Crown, Crosshair, Lock } from "lucide-react";
+import { Crown, Crosshair, Lock, ChevronDown } from "lucide-react";
 import {
   saveTopScorerBet,
   saveChampionBet,
@@ -38,6 +38,27 @@ interface SpecialBetsPanelProps {
     finalScoreB: number;
   } | null;
   canPlaceBets: boolean;
+  currentUserId: string;
+  participantsTopScorerBets: ParticipantTopScorerBet[];
+  participantsChampionBets: ParticipantChampionBet[];
+}
+
+interface ParticipantTopScorerBet {
+  userId: string;
+  userName: string;
+  playerName: string;
+  totalGoals: number;
+  pointsEarned: number | null;
+}
+
+interface ParticipantChampionBet {
+  userId: string;
+  userName: string;
+  champion: string;
+  runnerUp: string;
+  finalScoreA: number;
+  finalScoreB: number;
+  pointsEarned: number | null;
 }
 
 export default function SpecialBetsPanel({
@@ -49,12 +70,20 @@ export default function SpecialBetsPanel({
   topScorerResult,
   championResultData,
   canPlaceBets,
+  currentUserId,
+  participantsTopScorerBets,
+  participantsChampionBets,
 }: SpecialBetsPanelProps) {
   const [isPending, startTransition] = useTransition();
 
   // A aposta fica travada se: já foi feita, prazo fechou, ou resultado já foi lançado
   const topScorerLocked = !!topScorerBet || !bettingOpen || topScorerClosed || !canPlaceBets;
   const championLocked = !!championBet || !bettingOpen || championClosed || !canPlaceBets;
+
+  // Apostas dos participantes só ficam visíveis após o prazo encerrar
+  const showParticipants = !bettingOpen;
+  const otherTopScorerBets = participantsTopScorerBets.filter((b) => b.userId !== currentUserId);
+  const otherChampionBets = participantsChampionBets.filter((b) => b.userId !== currentUserId);
 
   // Top Scorer form
   const [playerName, setPlayerName] = useState("");
@@ -369,6 +398,109 @@ export default function SpecialBetsPanel({
           </>
         )}
       </Card>
+
+      {/* Apostas dos participantes — visíveis após o prazo encerrar */}
+      {showParticipants && otherTopScorerBets.length > 0 && (
+        <details className="group overflow-hidden rounded-2xl border bg-card shadow-sm">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-left">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
+                <Crosshair className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Artilheiro — apostas dos participantes</p>
+                <p className="text-xs text-muted-foreground">
+                  {otherTopScorerBets.length} aposta{otherTopScorerBets.length === 1 ? "" : "s"}
+                </p>
+              </div>
+            </div>
+            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
+          </summary>
+          <div className="border-t px-4 py-4">
+            <div className="grid gap-3">
+              {otherTopScorerBets.map((bet) => (
+                <div
+                  key={bet.userId}
+                  className="flex flex-col gap-2 rounded-xl border bg-muted/30 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="text-sm font-semibold">{bet.userName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {bet.playerName} — {bet.totalGoals} gols
+                    </p>
+                  </div>
+                  {bet.pointsEarned !== null ? (
+                    <Badge
+                      className={
+                        bet.pointsEarned >= 35
+                          ? "bg-green-600 text-white"
+                          : bet.pointsEarned > 0
+                            ? "bg-amber-500 text-white"
+                            : "bg-muted text-muted-foreground"
+                      }
+                    >
+                      +{bet.pointsEarned} pts
+                    </Badge>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Aposta fechada</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </details>
+      )}
+
+      {showParticipants && otherChampionBets.length > 0 && (
+        <details className="group overflow-hidden rounded-2xl border bg-card shadow-sm">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-left">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Crown className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Campeão — apostas dos participantes</p>
+                <p className="text-xs text-muted-foreground">
+                  {otherChampionBets.length} aposta{otherChampionBets.length === 1 ? "" : "s"}
+                </p>
+              </div>
+            </div>
+            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
+          </summary>
+          <div className="border-t px-4 py-4">
+            <div className="grid gap-3">
+              {otherChampionBets.map((bet) => (
+                <div
+                  key={bet.userId}
+                  className="flex flex-col gap-2 rounded-xl border bg-muted/30 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="text-sm font-semibold">{bet.userName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {bet.champion} {bet.finalScoreA} × {bet.finalScoreB} ({bet.runnerUp})
+                    </p>
+                  </div>
+                  {bet.pointsEarned !== null ? (
+                    <Badge
+                      className={
+                        bet.pointsEarned >= 90
+                          ? "bg-green-600 text-white"
+                          : bet.pointsEarned >= 50
+                            ? "bg-amber-500 text-white"
+                            : "bg-muted text-muted-foreground"
+                      }
+                    >
+                      +{bet.pointsEarned} pts
+                    </Badge>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Aposta fechada</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </details>
+      )}
     </div>
   );
 }

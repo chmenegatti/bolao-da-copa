@@ -12,16 +12,49 @@ export const dynamic = "force-dynamic";
 export default async function SpecialBetsPage() {
   const user = await getRequiredUser();
 
-  const [topScorerBet, championBet, topScorerResult, championResult, firstMatch] =
-    await Promise.all([
-      prisma.topScorerBet.findUnique({ where: { userId: user.id } }),
-      prisma.championBet.findUnique({ where: { userId: user.id } }),
-      prisma.tournamentResult.findUnique({ where: { key: "topScorer" } }),
-      prisma.tournamentResult.findUnique({ where: { key: "champion" } }),
-      prisma.match.findFirst({ orderBy: { datetime: "asc" }, select: { datetime: true } }),
-    ]);
+  const [
+    topScorerBet,
+    championBet,
+    topScorerResult,
+    championResult,
+    firstMatch,
+    allTopScorerBets,
+    allChampionBets,
+  ] = await Promise.all([
+    prisma.topScorerBet.findUnique({ where: { userId: user.id } }),
+    prisma.championBet.findUnique({ where: { userId: user.id } }),
+    prisma.tournamentResult.findUnique({ where: { key: "topScorer" } }),
+    prisma.tournamentResult.findUnique({ where: { key: "champion" } }),
+    prisma.match.findFirst({ orderBy: { datetime: "asc" }, select: { datetime: true } }),
+    prisma.topScorerBet.findMany({
+      include: { user: { select: { id: true, name: true } } },
+      orderBy: { user: { name: "asc" } },
+    }),
+    prisma.championBet.findMany({
+      include: { user: { select: { id: true, name: true } } },
+      orderBy: { user: { name: "asc" } },
+    }),
+  ]);
 
   const bettingOpen = firstMatch ? canUserPlaceGuess(firstMatch.datetime) : false;
+
+  const participantsTopScorerBets = allTopScorerBets.map((b) => ({
+    userId: b.userId,
+    userName: b.user.name,
+    playerName: b.playerName,
+    totalGoals: b.totalGoals,
+    pointsEarned: b.pointsEarned,
+  }));
+
+  const participantsChampionBets = allChampionBets.map((b) => ({
+    userId: b.userId,
+    userName: b.user.name,
+    champion: b.champion,
+    runnerUp: b.runnerUp,
+    finalScoreA: b.finalScoreA,
+    finalScoreB: b.finalScoreB,
+    pointsEarned: b.pointsEarned,
+  }));
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
@@ -87,6 +120,9 @@ export default async function SpecialBetsPage() {
             : null
         }
         canPlaceBets={user.paymentConfirmed}
+        currentUserId={user.id}
+        participantsTopScorerBets={participantsTopScorerBets}
+        participantsChampionBets={participantsChampionBets}
       />
     </div>
   );
