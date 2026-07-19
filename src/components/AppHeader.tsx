@@ -21,6 +21,7 @@ import {
   Banknote,
   Coins,
   Pencil,
+  Table2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -59,6 +60,7 @@ export default function AppHeader({
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/jogos", label: "Jogos", icon: Target },
     { href: "/ranking", label: "Ranking", icon: Trophy },
+    { href: "/resumo", label: "Resumo", icon: Table2 },
     { href: "/special-bets", label: "Apostas", icon: Crown },
     { href: "/premiacao", label: "Premiação", icon: Coins },
   ];
